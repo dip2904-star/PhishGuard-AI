@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishGuard AI - Autonomous Phishing Detection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/glow.css') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        :root {
+            --primary-yellow: #FFD700;
+            --dark-bg: #000000;
+            --dark-secondary: #0a0a0a;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #1a1a1a;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .main-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 24px 48px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--primary-yellow);
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 32px;
+            cursor: pointer;
+            padding: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* Side Menu */
+        .side-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 500px;
+            height: 100vh;
+            background: #000000;
+            z-index: 2000;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+        }
+
+        .side-menu.active {
+            right: 0;
+        }
+
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 80px;
+        }
+
+        .menu-logo {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: var(--text-primary);
+        }
+
+        .menu-logo span {
+            color: var(--primary-yellow);
+        }
+
+        .close-menu {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 36px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .close-menu:hover {
+            transform: rotate(90deg);
+        }
+
+        .menu-items {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .menu-item {
+            padding: 28px 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-size: 24px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:hover {
+            color: var(--primary-yellow);
+            padding-left: 16px;
+        }
+
+        .menu-item i {
+            font-size: 20px;
+            opacity: 0.6;
+        }
+
+        .menu-cta {
+            margin-top: auto;
+            padding-top: 40px;
+        }
+
+        .btn-demo {
+            width: 100%;
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--text-primary);
+            padding: 20px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .btn-demo:hover {
+            background: var(--text-primary);
+            color: var(--dark-bg);
+        }
+
+        /* Menu Overlay */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 120px 48px 80px;
+            position: relative;
+            background: radial-gradient(ellipse at top, rgba(255, 215, 0, 0.08) 0%, transparent 50%);
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-yellow);
+            margin-bottom: 40px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero-title {
+            font-size: 96px;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -4px;
+            margin-bottom: 32px;
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+        }
+
+        .hero-title .highlight {
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        .hero-subtitle {
+            font-size: 28px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            max-width: 900px;
+            margin-bottom: 48px;
+            animation: fadeInUp 0.8s ease-out 0.4s backwards;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 20px;
+            animation: fadeInUp 0.8s ease-out 0.6s backwards;
+        }
+
+        .btn-primary {
+            background: var(--primary-yellow);
+            color: var(--dark-bg);
+            border: none;
+            padding: 18px 40px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--text-primary);
+            padding: 18px 40px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            background: var(--text-primary);
+            color: var(--dark-bg);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 120px 48px;
+            background: var(--dark-secondary);
+        }
+
+        .stats-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary-yellow);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -2px;
+            margin-bottom: 64px;
+            max-width: 800px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 48px;
+        }
+
+        .stat-item {
+            border-top: 2px solid var(--primary-yellow);
+            padding-top: 24px;
+        }
+
+        .stat-number {
+            font-size: 72px;
+            font-weight: 900;
+            color: var(--primary-yellow);
+            line-height: 1;
+            margin-bottom: 16px;
+            letter-spacing: -3px;
+        }
+
+        .stat-label {
+            font-size: 18px;
+            color: var(--text-primary);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .stat-description {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 120px 48px;
+        }
+
+        .features-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 48px;
+            margin-top: 64px;
+        }
+
+        .feature-card {
+            padding: 48px 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .feature-icon {
+            width: 72px;
+            height: 72px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 28px;
+        }
+
+        .feature-icon i {
+            font-size: 32px;
+            color: var(--primary-yellow);
+        }
+
+        .feature-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+        }
+
+        .feature-description {
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .hero-title {
+                font-size: 72px;
+            }
+            
+            .section-title {
+                font-size: 48px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-header {
+                padding: 20px 24px;
+            }
+
+            .hero-section {
+                padding: 100px 24px 60px;
+            }
+
+            .hero-title {
+                font-size: 48px;
+                letter-spacing: -2px;
+            }
+
+            .hero-subtitle {
+                font-size: 20px;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+            }
+
+            .stats-section,
+            .features-section {
+                padding: 80px 24px;
+            }
+
+            .section-title {
+                font-size: 36px;
+            }
+
+            .stat-number {
+                font-size: 56px;
+            }
+
+            .stats-grid,
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .menu-item {
+                font-size: 20px;
+                padding: 24px 0;
+            }
+
+            .side-menu {
+                padding: 32px 24px;
+            }
+
+            .menu-header {
+                margin-bottom: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <a href="#" class="logo">PhishGuard <span>AI</span></a>
+        <button class="menu-toggle" onclick="openMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+    </header>
+
+    <!-- Side Menu -->
+    <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+    <div class="side-menu" id="sideMenu">
+        <div class="menu-header">
+            <div class="menu-logo">PhishGuard <span>AI</span></div>
+            <button class="close-menu" onclick="closeMenu()">×</button>
+        </div>
+
+        <nav class="menu-items">
+    <a href="{{ url_for('predict') }}" class="menu-item">
+        Scanner
+        <i class="fas fa-chevron-right"></i>
+    </a>
+    <a href="{{ url_for('dashboard') }}" class="menu-item">
+        Dashboard
+        <i class="fas fa-chevron-right"></i>
+    </a>
+    <a href="{{ url_for('stats') }}" class="menu-item">
+        Statistics
+        <i class="fas fa-chevron-right"></i>
+    </a>
+    <a href="{{ url_for('history') }}" class="menu-item">
+        History
+        <i class="fas fa-chevron-right"></i>
+    </a>
+    <a href="{{ url_for('about') }}" class="menu-item">
+        About
+        <i class="fas fa-chevron-right"></i>
+    </a>
+    <a href="{{ url_for('logout') }}" class="menu-item">
+        Logout
+        <i class="fas fa-chevron-right"></i>
+    </a>
+</nav>
+
+        <div class="menu-cta">
+            <button class="btn-demo">Sign Up</button>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-shield-alt"></i>
+                ML-Powered Phishing Detection
+            </div>
+            
+            <h1 class="hero-title">
+                Autonomous <span class="highlight">Phishing</span><br>
+                Detection Platform
+            </h1>
+            
+            <p class="hero-subtitle">
+                Harness AI and machine learning to detect, analyze, and block phishing threats 
+                in real-time with 97% accuracy across your organization
+            </p>
+
+            <div class="hero-cta">
+                <a href="#" class="btn-primary">Sign Up</a>
+                <a href="#" class="btn-secondary">Watch Demo</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="stats-container">
+            <div class="section-label">Performance Metrics</div>
+            <h2 class="section-title">
+                Enterprise-grade protection powered by advanced machine learning
+            </h2>
+
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">97%</div>
+                    <div class="stat-label">Detection Accuracy</div>
+                    <p class="stat-description">
+                        Industry-leading precision in identifying phishing threats with minimal false positives
+                    </p>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-number">&lt;1s</div>
+                    <div class="stat-label">Response Time</div>
+                    <p class="stat-description">
+                        Real-time URL analysis with sub-second threat assessment for immediate protection
+                    </p>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-number">32+</div>
+                    <div class="stat-label">Features Analyzed</div>
+                    <p class="stat-description">
+                        Comprehensive examination of URL characteristics, patterns, and behavioral indicators
+                    </p>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Continuous Monitoring</div>
+                    <p class="stat-description">
+                        Round-the-clock threat detection and protection for your entire organization
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="features-container">
+            <div class="section-label">Core Capabilities</div>
+            <h2 class="section-title">
+                Built for security teams that demand reliability and precision
+            </h2>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="feature-title">Machine Learning Engine</h3>
+                    <p class="feature-description">
+                        Advanced Random Forest algorithms trained on thousands of phishing patterns to 
+                        identify threats with exceptional accuracy and adapt to emerging attack vectors
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3 class="feature-title">Real-Time Analysis</h3>
+                    <p class="feature-description">
+                        Instant threat assessment with sub-second response times. Analyze URLs on-demand 
+                        or integrate into your existing security workflows for automated protection
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="feature-title">Comprehensive Analytics</h3>
+                    <p class="feature-description">
+                        Detailed threat intelligence with confidence scoring, feature analysis, and 
+                        historical tracking to understand attack patterns and improve security posture
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-check"></i>
+                    </div>
+                    <h3 class="feature-title">Enterprise Security</h3>
+                    <p class="feature-description">
+                        Built for organizations that need reliable, scalable protection with audit trails, 
+                        compliance reporting, and integration capabilities for existing security tools
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3 class="feature-title">API Integration</h3>
+                    <p class="feature-description">
+                        Simple REST API for seamless integration into applications, security systems, 
+                        and automated workflows to extend protection across your infrastructure
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3 class="feature-title">Scan History & Reporting</h3>
+                    <p class="feature-description">
+                        Complete audit trail of all security assessments with detailed reports, trends 
+                        analysis, and exportable data for compliance and security reviews
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function openMenu() {
+            document.getElementById('sideMenu').classList.add('active');
+            document.getElementById('menuOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMenu() {
+            document.getElementById('sideMenu').classList.remove('active');
+            document.getElementById('menuOverlay').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close menu on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMenu();
+            }
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href !== '#') {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        closeMenu();
+                        setTimeout(() => {
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }, 400);
+                    }
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

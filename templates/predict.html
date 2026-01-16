@@ -1,0 +1,807 @@
+{% extends "atoms_base.html" %}
+
+{% block content %}
+<style>
+    /* Enhanced Scanner Page Design */
+    .page-container {
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Floating geometric decorations */
+    .scanner-decoration {
+        position: absolute;
+        pointer-events: none;
+        opacity: 0.06;
+        z-index: 0;
+    }
+
+    .scanner-shape-1 {
+        top: 10%;
+        right: 10%;
+        width: 180px;
+        height: 180px;
+        background: linear-gradient(135deg, #4A90E2, #7B68EE);
+        clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+        animation: floatRotate 25s ease-in-out infinite;
+    }
+
+    .scanner-shape-2 {
+        bottom: 15%;
+        left: 8%;
+        width: 140px;
+        height: 140px;
+        background: linear-gradient(135deg, #9370DB, #8B7EC8);
+        clip-path: circle(50%);
+        animation: floatRotate 20s ease-in-out infinite reverse;
+    }
+
+    @keyframes floatRotate {
+        0%, 100% {
+            transform: translateY(0px) rotate(0deg) scale(1);
+        }
+        33% {
+            transform: translateY(-40px) rotate(120deg) scale(1.1);
+        }
+        66% {
+            transform: translateY(-20px) rotate(240deg) scale(0.9);
+        }
+    }
+
+    /* Enhanced page header - centered */
+    .page-header {
+        text-align: center;
+        margin-bottom: 64px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .page-header h1 {
+        font-size: 96px;
+        font-weight: 200;
+        letter-spacing: -5px;
+        margin-bottom: 16px;
+        background: linear-gradient(135deg, #1a1a1a 0%, #4A90E2 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: titleFadeIn 1s ease;
+    }
+
+    .page-header h1::after {
+        content: '';
+        position: absolute;
+        bottom: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #4A90E2, #9370DB);
+        border-radius: 2px;
+        animation: underlineExpand 1s ease 0.3s backwards;
+    }
+
+    @keyframes titleFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes underlineExpand {
+        from {
+            width: 0;
+            opacity: 0;
+        }
+        to {
+            width: 100px;
+            opacity: 1;
+        }
+    }
+
+    .page-header p {
+        font-size: 20px;
+        color: var(--text-secondary);
+        font-weight: 300;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    /* Scanner container - enhanced */
+    .scanner-container {
+        max-width: 900px;
+        margin: 0 auto 80px;
+        position: relative;
+        z-index: 1;
+        animation: fadeInUp 0.8s ease 0.4s backwards;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .scanner-card {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        padding: 64px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .scanner-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #4A90E2, #7B68EE, #9370DB);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.6s ease;
+    }
+
+    .scanner-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .scanner-card:hover {
+        box-shadow: 0 8px 40px rgba(74, 144, 226, 0.12);
+        transform: translateY(-4px);
+    }
+
+    .form-group-scanner label {
+        display: block;
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-bottom: 32px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .url-input {
+        width: 100%;
+        padding: 24px 0;
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid var(--border);
+        color: var(--text-primary);
+        font-size: 20px;
+        font-weight: 300;
+        transition: all 0.3s ease;
+        outline: none;
+        margin-bottom: 40px;
+        text-align: center;
+        letter-spacing: 0.5px;
+    }
+
+    .url-input:focus {
+        border-bottom-color: #4A90E2;
+        box-shadow: 0 2px 0 #4A90E2;
+    }
+
+    .url-input::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.5;
+    }
+
+    .btn-scan {
+        width: 100%;
+        padding: 22px;
+        background: linear-gradient(135deg, #4A90E2, #7B68EE);
+        color: var(--bg-primary);
+        border: none;
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        cursor: pointer;
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-scan::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+
+    .btn-scan:hover::before {
+        width: 400px;
+        height: 400px;
+    }
+
+    .btn-scan:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(74, 144, 226, 0.4);
+    }
+
+    .btn-scan:active {
+        transform: translateY(0);
+    }
+
+    /* Results container - enhanced */
+    .results-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+        animation: fadeInUp 0.8s ease;
+    }
+
+    /* Verdict card - more dramatic */
+    .verdict-card {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        padding: 80px 64px;
+        margin-bottom: 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        animation: scaleIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 400px;
+    }
+
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .verdict-card.verdict-success {
+        border-left: 6px solid var(--success);
+        box-shadow: 0 8px 40px rgba(16, 185, 129, 0.08);
+    }
+
+    .verdict-card.verdict-danger {
+        border-left: 6px solid var(--danger);
+        box-shadow: 0 8px 40px rgba(239, 68, 68, 0.08);
+    }
+
+    .verdict-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        opacity: 0.03;
+        pointer-events: none;
+    }
+
+    .verdict-card.verdict-success::before {
+        background: radial-gradient(circle, var(--success), transparent 70%);
+    }
+
+    .verdict-card.verdict-danger::before {
+        background: radial-gradient(circle, var(--danger), transparent 70%);
+    }
+
+    .verdict-content {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .verdict-icon {
+        font-size: 80px;
+        margin-bottom: 32px;
+        animation: iconPulse 2s ease-in-out infinite;
+        display: block;
+    }
+
+    @keyframes iconPulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+    }
+
+    .verdict-card.verdict-success .verdict-icon {
+        color: var(--success);
+        filter: drop-shadow(0 0 30px rgba(16, 185, 129, 0.3));
+    }
+
+    .verdict-card.verdict-danger .verdict-icon {
+        color: var(--danger);
+        filter: drop-shadow(0 0 30px rgba(239, 68, 68, 0.3));
+    }
+
+    .verdict-text h2 {
+        font-size: 48px;
+        font-weight: 300;
+        margin-bottom: 16px;
+        letter-spacing: -2px;
+    }
+
+    .verdict-text p {
+        font-size: 18px;
+        color: var(--text-secondary);
+        font-weight: 300;
+        line-height: 1.8;
+    }
+
+    /* Details grid - enhanced */
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+        margin-bottom: 48px;
+        animation: fadeInUp 0.8s ease 0.2s backwards;
+    }
+
+    .detail-card {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        padding: 32px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .detail-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, #4A90E2, #9370DB);
+        transform: scaleY(0);
+        transition: transform 0.4s ease;
+    }
+
+    .detail-card:hover::before {
+        transform: scaleY(1);
+    }
+
+    .detail-card:hover {
+        transform: translateX(6px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    }
+
+    .detail-label {
+        font-size: 11px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+
+    .detail-value {
+        font-size: 20px;
+        font-weight: 300;
+        letter-spacing: -0.5px;
+    }
+
+    .url-value {
+        word-break: break-all;
+        font-size: 16px;
+        font-family: 'Courier New', monospace;
+        color: #4A90E2;
+    }
+
+    .time-value {
+        color: var(--text-secondary);
+        font-size: 16px;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        border-radius: 24px;
+        text-transform: uppercase;
+    }
+
+    .badge-success {
+        color: #059669;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-danger {
+        color: #dc2626;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* Confidence bar - enhanced */
+    .confidence-bar {
+        height: 8px;
+        background: var(--border);
+        margin-top: 20px;
+        overflow: hidden;
+        border-radius: 4px;
+        position: relative;
+    }
+
+    .confidence-fill {
+        height: 100%;
+        border-radius: 4px;
+        position: relative;
+        animation: fillBar 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes fillBar {
+        from {
+            width: 0 !important;
+        }
+    }
+
+    .confidence-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.3),
+            transparent
+        );
+        animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    .confidence-fill.confidence-success {
+        background: linear-gradient(90deg, #10b981, #34d399);
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .confidence-fill.confidence-danger {
+        background: linear-gradient(90deg, #ef4444, #f87171);
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+    }
+
+    /* Indicators section */
+    .indicators-section {
+        margin-bottom: 48px;
+        animation: fadeInUp 0.8s ease 0.3s backwards;
+    }
+
+    .indicators-section h3 {
+        font-size: 28px;
+        font-weight: 300;
+        margin-bottom: 32px;
+        letter-spacing: -1px;
+    }
+
+    .indicators-grid {
+        display: grid;
+        gap: 16px;
+    }
+
+    .indicator-item {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        padding: 24px;
+        display: flex;
+        gap: 20px;
+        align-items: start;
+        transition: all 0.3s ease;
+    }
+
+    .indicator-item.indicator-warning {
+        border-left: 3px solid #f59e0b;
+    }
+
+    .indicator-item.indicator-danger {
+        border-left: 3px solid var(--danger);
+    }
+
+    .indicator-item:hover {
+        transform: translateX(6px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    .indicator-item i {
+        font-size: 28px;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
+
+    .indicator-item strong {
+        display: block;
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 6px;
+    }
+
+    .indicator-item p {
+        font-size: 14px;
+        color: var(--text-secondary);
+        font-weight: 300;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    /* Actions bar */
+    .actions-bar {
+        display: flex;
+        gap: 16px;
+        animation: fadeInUp 0.8s ease 0.4s backwards;
+    }
+
+    .btn-secondary,
+    .btn-tertiary {
+        flex: 1;
+        padding: 20px;
+        text-align: center;
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #4A90E2, #7B68EE);
+        color: var(--bg-primary);
+    }
+
+    .btn-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(74, 144, 226, 0.3);
+    }
+
+    .btn-tertiary {
+        background: transparent;
+        color: var(--text-primary);
+        border: 2px solid var(--border);
+    }
+
+    .btn-tertiary:hover {
+        border-color: #4A90E2;
+        color: #4A90E2;
+        transform: translateY(-2px);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 56px;
+            letter-spacing: -3px;
+        }
+
+        .scanner-card {
+            padding: 40px 32px;
+        }
+
+        .url-input {
+            font-size: 16px;
+        }
+
+        .verdict-card {
+            padding: 48px 32px;
+        }
+
+        .verdict-icon {
+            font-size: 64px;
+        }
+
+        .verdict-text h2 {
+            font-size: 36px;
+        }
+
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .actions-bar {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<!-- Floating Geometric Decorations -->
+<div class="scanner-decoration scanner-shape-1"></div>
+<div class="scanner-decoration scanner-shape-2"></div>
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1>URL Scanner</h1>
+                <p>Advanced machine learning analysis for phishing threat detection</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scanner Form -->
+    <div class="scanner-container">
+        <div class="scanner-card">
+            <form method="POST" class="scanner-form">
+                <div class="form-group-scanner">
+                    <label>Enter URL to analyze</label>
+                    <input 
+                        type="text" 
+                        name="url" 
+                        placeholder="https://example.com" 
+                        required 
+                        autofocus
+                        class="url-input"
+                    >
+                    <button type="submit" class="btn-scan">
+                        <span>Analyze URL</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results -->
+    {% if result %}
+    <div class="results-container">
+        <!-- Verdict Card -->
+        <div class="verdict-card verdict-{{ result.prediction_class }}">
+            <div class="verdict-content">
+                <div class="verdict-icon">
+                    {% if result.prediction == 'Phishing' %}
+                    <i class="fas fa-exclamation-triangle"></i>
+                    {% else %}
+                    <i class="fas fa-shield-alt"></i>
+                    {% endif %}
+                </div>
+                <div class="verdict-text">
+                    <h2>
+                        {% if result.prediction == 'Phishing' %}
+                        Threat Detected
+                        {% else %}
+                        URL is Secure
+                        {% endif %}
+                    </h2>
+                    <p>
+                        {% if result.prediction == 'Phishing' %}
+                        This URL exhibits malicious patterns and phishing indicators
+                        {% else %}
+                        No malicious patterns detected - URL appears legitimate
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Grid -->
+        <div class="details-grid">
+            <!-- URL -->
+            <div class="detail-card">
+                <div class="detail-label">Scanned URL</div>
+                <div class="detail-value url-value">{{ result.url }}</div>
+            </div>
+
+            <!-- Classification -->
+            <div class="detail-card">
+                <div class="detail-label">Classification</div>
+                <div class="detail-value">
+                    <span class="badge badge-{{ result.prediction_class }}">
+                        {{ result.prediction }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Confidence -->
+            <div class="detail-card">
+                <div class="detail-label">Confidence Level</div>
+                <div class="detail-value">{{ result.confidence }}</div>
+                {% if result.confidence_value %}
+                <div class="confidence-bar">
+                    <div class="confidence-fill confidence-{{ result.prediction_class }}" 
+                         style="width: {{ result.confidence_value }}%"></div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Timestamp -->
+            <div class="detail-card">
+                <div class="detail-label">Scan Time</div>
+                <div class="detail-value time-value">{{ result.timestamp }}</div>
+            </div>
+        </div>
+
+        <!-- Indicators -->
+        {% if result.features.has_ip or result.features.num_suspicious_words > 0 or not result.features.has_https %}
+        <div class="indicators-section">
+            <h3>Detection Indicators</h3>
+            <div class="indicators-grid">
+                {% if result.features.has_ip %}
+                <div class="indicator-item indicator-warning">
+                    <i class="fas fa-server"></i>
+                    <div>
+                        <strong>IP Address Detected</strong>
+                        <p>URL contains direct IP address</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if result.features.num_suspicious_words > 0 %}
+                <div class="indicator-item indicator-warning">
+                    <i class="fas fa-flag"></i>
+                    <div>
+                        <strong>Suspicious Keywords</strong>
+                        <p>{{ result.features.num_suspicious_words }} flagged terms found</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if not result.features.has_https %}
+                <div class="indicator-item indicator-danger">
+                    <i class="fas fa-unlock"></i>
+                    <div>
+                        <strong>No HTTPS</strong>
+                        <p>Connection is not secure</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if result.features.is_shortened %}
+                <div class="indicator-item indicator-warning">
+                    <i class="fas fa-link"></i>
+                    <div>
+                        <strong>URL Shortener</strong>
+                        <p>Uses link shortening service</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div class="actions-bar">
+            <a href="{{ url_for('predict') }}" class="btn-secondary">Scan Another URL</a>
+            <a href="{{ url_for('history') }}" class="btn-tertiary">View History →</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

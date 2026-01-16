@@ -1,0 +1,385 @@
+/* Premium Neon Glow Background - Blackbird Style */
+
+/* Primary dramatic spotlight glow - top left */
+body::before {
+    content: '';
+    position: fixed;
+    top: -40%;
+    left: -30%;
+    width: 80%;
+    height: 100%;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(200, 255, 0, 0.45) 0%,
+        rgba(180, 240, 0, 0.35) 15%,
+        rgba(160, 220, 0, 0.25) 25%,
+        rgba(140, 200, 0, 0.15) 35%,
+        rgba(120, 180, 0, 0.08) 45%,
+        transparent 60%
+    );
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(60px);
+    animation: spotlightPulse 12s ease-in-out infinite;
+}
+
+/* Secondary accent glow - bottom right */
+body::after {
+    content: '';
+    position: fixed;
+    bottom: -30%;
+    right: -25%;
+    width: 70%;
+    height: 80%;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(255, 230, 0, 0.3) 0%,
+        rgba(240, 220, 0, 0.2) 20%,
+        rgba(220, 200, 0, 0.12) 35%,
+        rgba(200, 180, 0, 0.06) 50%,
+        transparent 65%
+    );
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(80px);
+    animation: spotlightPulse 15s ease-in-out infinite reverse;
+}
+
+@keyframes spotlightPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.75;
+        transform: scale(1.1);
+    }
+}
+
+/* Ensure all content is above the glow */
+.navbar-custom,
+.page-header,
+.container,
+.hero-section,
+nav,
+header,
+.main-header,
+.side-menu,
+.login-modal,
+.login-modal-overlay,
+.menu-overlay,
+section,
+.stats-section,
+.features-section {
+    position: relative;
+    z-index: 1;
+}
+
+/* Hero section - concentrated top glow */
+.hero-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 20%;
+    width: 60%;
+    height: 100%;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(220, 255, 0, 0.4) 0%,
+        rgba(200, 240, 0, 0.25) 25%,
+        rgba(180, 220, 0, 0.15) 40%,
+        transparent 60%
+    );
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(100px);
+    animation: heroBreathing 8s ease-in-out infinite;
+}
+
+@keyframes heroBreathing {
+    0%, 100% {
+        opacity: 0.9;
+        transform: scale(1) translateY(0);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.2) translateY(-20px);
+    }
+}
+
+/* Ensure hero content is visible */
+.hero-content,
+.hero-section .container,
+.hero-section > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Stats section - bottom glow */
+.stats-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-section::before {
+    content: '';
+    position: absolute;
+    bottom: -40%;
+    right: 10%;
+    width: 70%;
+    height: 80%;
+    background: radial-gradient(
+        circle at center,
+        rgba(240, 255, 0, 0.25) 0%,
+        rgba(220, 240, 0, 0.15) 30%,
+        rgba(200, 220, 0, 0.08) 50%,
+        transparent 70%
+    );
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(90px);
+}
+
+/* Features section - left side glow */
+.features-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.features-section::after {
+    content: '';
+    position: absolute;
+    top: 30%;
+    left: -30%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(
+        circle at center,
+        rgba(200, 255, 0, 0.2) 0%,
+        rgba(180, 240, 0, 0.12) 35%,
+        rgba(160, 220, 0, 0.06) 55%,
+        transparent 75%
+    );
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(100px);
+}
+
+/* Card interactions - subtle glow on hover */
+.card-dark:hover,
+.stat-card-dark:hover {
+    box-shadow: 
+        0 8px 40px rgba(200, 255, 0, 0.15),
+        0 4px 20px rgba(180, 240, 0, 0.1),
+        inset 0 0 30px rgba(220, 255, 0, 0.03);
+    transition: all 0.4s ease;
+}
+
+/* Button premium glow */
+.btn-primary-yellow,
+.btn-primary {
+    box-shadow: 
+        0 4px 30px rgba(255, 215, 0, 0.4),
+        0 2px 15px rgba(240, 200, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-primary-yellow:hover,
+.btn-primary:hover {
+    box-shadow: 
+        0 8px 50px rgba(255, 215, 0, 0.6),
+        0 4px 30px rgba(240, 200, 0, 0.5),
+        0 0 80px rgba(220, 255, 0, 0.2);
+}
+
+/* Text glow - subtle and classy */
+.hero-title,
+.page-header h1 {
+    text-shadow: 
+        0 0 60px rgba(220, 255, 0, 0.15),
+        0 0 30px rgba(200, 240, 0, 0.1);
+}
+
+.logo,
+.navbar-brand,
+.menu-logo {
+    text-shadow: 0 0 40px rgba(220, 255, 0, 0.2);
+}
+
+/* Navigation subtle glow */
+/* Navbar with Glassmorphism */
+.navbar-custom {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar-custom.scrolled {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+    padding: 16px 0;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.5),
+        0 4px 16px rgba(200, 255, 0, 0.1);
+}
+
+.navbar-brand {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    color: var(--light-text);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.navbar-custom.scrolled .navbar-brand {
+    font-size: 24px;
+}
+
+.navbar-brand span {
+    color: var(--primary-yellow);
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+/* Active states */
+.nav-link-custom.active,
+.nav-link.active {
+    box-shadow: 
+        0 0 20px rgba(220, 255, 0, 0.25),
+        inset 0 0 15px rgba(200, 240, 0, 0.1);
+}
+
+/* Badge glows */
+.badge-yellow {
+    box-shadow: 
+        0 4px 25px rgba(255, 215, 0, 0.4),
+        0 2px 15px rgba(240, 200, 0, 0.3);
+}
+
+.badge-green {
+    box-shadow: 
+        0 4px 25px rgba(16, 185, 129, 0.4),
+        0 2px 15px rgba(16, 185, 129, 0.3);
+}
+
+.badge-red {
+    box-shadow: 
+        0 4px 25px rgba(239, 68, 68, 0.4),
+        0 2px 15px rgba(239, 68, 68, 0.3);
+}
+
+/* Login modal dramatic entrance */
+.login-modal {
+    box-shadow: 
+        0 0 100px rgba(220, 255, 0, 0.25),
+        0 0 50px rgba(200, 240, 0, 0.15),
+        0 20px 80px rgba(0, 0, 0, 0.9);
+}
+
+/* Input focus - premium feel */
+.form-control:focus {
+    box-shadow: 
+        0 0 0 3px rgba(220, 255, 0, 0.15),
+        0 4px 30px rgba(200, 240, 0, 0.2) !important;
+    border-color: rgba(220, 255, 0, 0.5) !important;
+}
+
+/* Progress bars */
+.progress-bar {
+    box-shadow: 
+        0 0 20px currentColor,
+        0 0 40px currentColor;
+}
+
+/* Cards ambient lighting */
+.card-dark,
+.stat-card-dark {
+    background: 
+        radial-gradient(
+            circle at top right,
+            rgba(220, 255, 0, 0.04),
+            transparent 70%
+        ),
+        var(--dark-card);
+}
+
+/* Feature cards on hover */
+.feature-card:hover {
+    box-shadow: 
+        0 8px 40px rgba(200, 255, 0, 0.12),
+        0 4px 20px rgba(180, 240, 0, 0.08);
+}
+
+/* Stat items line glow */
+.stat-item::before {
+    box-shadow: 
+        0 0 15px rgba(255, 215, 0, 0.6),
+        0 0 30px rgba(240, 200, 0, 0.4);
+}
+
+/* Pulsing badge animation - subtle */
+.hero-badge,
+.section-label {
+    animation: subtlePulse 4s ease-in-out infinite;
+}
+
+@keyframes subtlePulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.85;
+        transform: scale(1.02);
+    }
+}
+
+/* Menu glow when open */
+.side-menu {
+    box-shadow: 
+        -50px 0 100px rgba(200, 255, 0, 0.15),
+        -20px 0 50px rgba(180, 240, 0, 0.1);
+}
+
+/* Page header concentrated glow */
+.page-header {
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    left: 30%;
+    width: 50%;
+    height: 100%;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(220, 255, 0, 0.3) 0%,
+        rgba(200, 240, 0, 0.18) 30%,
+        rgba(180, 220, 0, 0.10) 50%,
+        transparent 70%
+    );
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(80px);
+}
+
+.page-header .container {
+    position: relative;
+    z-index: 1;
+}

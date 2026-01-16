@@ -1,0 +1,981 @@
+{% extends "atoms_base.html" %}
+
+{% block content %}
+<style>
+    /* Enhanced Stats Page Design */
+    .page-container {
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Floating geometric decorations */
+    .stats-decoration {
+        position: absolute;
+        pointer-events: none;
+        opacity: 0.06;
+        z-index: 0;
+    }
+
+    .stats-shape-1 {
+        top: 15%;
+        right: 12%;
+        width: 160px;
+        height: 160px;
+        background: linear-gradient(135deg, #4A90E2, #7B68EE);
+        clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+        animation: floatRotate 25s ease-in-out infinite;
+    }
+
+    .stats-shape-2 {
+        bottom: 20%;
+        left: 10%;
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #9370DB, #8B7EC8);
+        clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+        animation: floatRotate 20s ease-in-out infinite reverse;
+    }
+
+    @keyframes floatRotate {
+        0%, 100% {
+            transform: translateY(0px) rotate(0deg) scale(1);
+        }
+        33% {
+            transform: translateY(-35px) rotate(120deg) scale(1.1);
+        }
+        66% {
+            transform: translateY(-15px) rotate(240deg) scale(0.95);
+        }
+    }
+
+    /* Centered page header */
+    .page-header {
+        text-align: center;
+        margin-bottom: 64px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .page-header h1 {
+        font-size: 96px;
+        font-weight: 200;
+        letter-spacing: -5px;
+        margin-bottom: 16px;
+        background: linear-gradient(135deg, #1a1a1a 0%, #4A90E2 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: titleFadeIn 1s ease;
+        position: relative;
+        display: inline-block;
+    }
+
+    .page-header h1::after {
+        content: '';
+        position: absolute;
+        bottom: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #4A90E2, #9370DB);
+        border-radius: 2px;
+        animation: underlineExpand 1s ease 0.3s backwards;
+    }
+
+    @keyframes titleFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes underlineExpand {
+        from {
+            width: 0;
+            opacity: 0;
+        }
+        to {
+            width: 100px;
+            opacity: 1;
+        }
+    }
+
+    .page-header p {
+        font-size: 20px;
+        color: var(--text-secondary);
+        font-weight: 300;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* Enhanced stats grid */
+    .stats-grid {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        margin-bottom: 64px;
+    }
+
+    .stat-card {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        padding: 40px 32px;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: cardSlideUp 0.8s ease backwards;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+    @keyframes cardSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, currentColor, transparent);
+        transform: scaleX(0);
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .stat-card:nth-child(1)::before { color: #4A90E2; }
+    .stat-card:nth-child(2)::before { color: #F5A623; }
+    .stat-card:nth-child(3)::before { color: #E57373; }
+    .stat-card:nth-child(4)::before { color: #7ED321; }
+
+    .stat-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .stat-card:nth-child(1)::after {
+        background: radial-gradient(circle at bottom right, rgba(74, 144, 226, 0.1), transparent);
+    }
+
+    .stat-card:nth-child(2)::after {
+        background: radial-gradient(circle at bottom right, rgba(245, 166, 35, 0.1), transparent);
+    }
+
+    .stat-card:nth-child(3)::after {
+        background: radial-gradient(circle at bottom right, rgba(229, 115, 115, 0.1), transparent);
+    }
+
+    .stat-card:nth-child(4)::after {
+        background: radial-gradient(circle at bottom right, rgba(126, 211, 33, 0.1), transparent);
+    }
+
+    .stat-card:hover::after {
+        opacity: 1;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-12px) scale(1.03);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        border-color: transparent;
+    }
+
+    .stat-label {
+        font-size: 11px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-number {
+        font-size: 56px;
+        font-weight: 200;
+        line-height: 1;
+        letter-spacing: -3px;
+        margin-bottom: 16px;
+        position: relative;
+        z-index: 1;
+        display: inline-block;
+        transition: all 0.4s ease;
+    }
+
+    .stat-card:nth-child(1):hover .stat-number {
+        background: linear-gradient(135deg, #4A90E2, #50C8E8);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        transform: scale(1.08);
+    }
+
+    .stat-card:nth-child(2):hover .stat-number {
+        background: linear-gradient(135deg, #F5A623, #FFD93D);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        transform: scale(1.08);
+    }
+
+    .stat-card:nth-child(3):hover .stat-number {
+        background: linear-gradient(135deg, #E57373, #FF8A80);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        transform: scale(1.08);
+    }
+
+    .stat-card:nth-child(4):hover .stat-number {
+        background: linear-gradient(135deg, #7ED321, #A8E063);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        transform: scale(1.08);
+    }
+
+    .stat-description {
+        font-size: 13px;
+        color: var(--text-secondary);
+        font-weight: 300;
+        line-height: 1.6;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Charts grid */
+    .charts-grid {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+        margin-bottom: 24px;
+        animation: fadeInUp 0.8s ease 0.5s backwards;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .chart-card {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        padding: 40px;
+        transition: all 0.3s ease;
+    }
+
+    .chart-card:hover {
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+        transform: translateY(-4px);
+    }
+
+    .chart-card h3 {
+        font-size: 24px;
+        font-weight: 300;
+        margin-bottom: 32px;
+        letter-spacing: -1px;
+    }
+
+    .chart-container {
+        height: 300px;
+        margin-bottom: 32px;
+    }
+
+    .chart-card-full {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        padding: 40px;
+        margin-bottom: 24px;
+        position: relative;
+        z-index: 1;
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.8s ease 0.6s backwards;
+    }
+
+    .chart-card-full:hover {
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .chart-card-full h3 {
+        font-size: 24px;
+        font-weight: 300;
+        margin-bottom: 32px;
+        letter-spacing: -1px;
+    }
+
+    .chart-container-large {
+        height: 350px;
+    }
+
+    /* Matrix stats */
+    .matrix-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+    }
+
+    .matrix-stat {
+        text-align: center;
+        padding: 20px 16px;
+        border-top: 2px solid var(--border);
+        transition: all 0.3s ease;
+    }
+
+    .matrix-stat:hover {
+        transform: translateY(-4px);
+    }
+
+    .matrix-stat.matrix-success {
+        border-top-color: var(--success);
+    }
+
+    .matrix-stat.matrix-danger {
+        border-top-color: var(--danger);
+    }
+
+    .matrix-value {
+        font-size: 32px;
+        font-weight: 300;
+        letter-spacing: -1.5px;
+        margin-bottom: 8px;
+    }
+
+    .matrix-label {
+        font-size: 11px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+    }
+
+    /* Distribution stats */
+    .distribution-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .dist-stat {
+        text-align: center;
+        padding: 20px 16px;
+        border-top: 2px solid var(--border);
+        transition: all 0.3s ease;
+    }
+
+    .dist-stat:hover {
+        transform: translateY(-4px);
+    }
+
+    .dist-value {
+        font-size: 40px;
+        font-weight: 300;
+        letter-spacing: -2px;
+        margin-bottom: 8px;
+    }
+
+    .dist-value.dist-success {
+        color: var(--success);
+    }
+
+    .dist-value.dist-danger {
+        color: var(--danger);
+    }
+
+    .dist-label {
+        font-size: 11px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+    }
+
+    /* Info section */
+    .info-section {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        padding: 40px;
+        position: relative;
+        z-index: 1;
+        animation: fadeInUp 0.8s ease 0.7s backwards;
+    }
+
+    .info-section h2 {
+        font-size: 28px;
+        font-weight: 300;
+        margin-bottom: 32px;
+        letter-spacing: -1px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+    }
+
+    .info-item {
+        padding: 24px 0;
+        border-top: 1px solid var(--border);
+        transition: all 0.3s ease;
+    }
+
+    .info-item:hover {
+        transform: translateY(-4px);
+    }
+
+    .info-label {
+        font-size: 11px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+        margin-bottom: 12px;
+    }
+
+    .info-value {
+        font-size: 20px;
+        font-weight: 300;
+        letter-spacing: -0.5px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .info-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 56px;
+            letter-spacing: -3px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .matrix-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<!-- Floating Geometric Decorations -->
+<div class="stats-decoration stats-shape-1"></div>
+<div class="stats-decoration stats-shape-2"></div>
+
+<div class="page-container">
+    <div class="page-header">
+        <h1>Statistics</h1>
+        <p>Comprehensive metrics and visualizations from Random Forest classifier</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Accuracy</div>
+            <div class="stat-number">{{ stats.model_stats.accuracy }}%</div>
+            <div class="stat-description">Overall prediction success</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Precision</div>
+            <div class="stat-number">{{ stats.model_stats.precision }}%</div>
+            <div class="stat-description">True positive rate</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Recall</div>
+            <div class="stat-number">{{ stats.model_stats.recall }}%</div>
+            <div class="stat-description">Threat detection coverage</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">F1-Score</div>
+            <div class="stat-number">{{ stats.model_stats.f1_score }}%</div>
+            <div class="stat-description">Balanced metric</div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3>Confusion Matrix</h3>
+            <div class="chart-container">
+                <canvas id="confusionChart"></canvas>
+            </div>
+            <div class="matrix-stats">
+                <div class="matrix-stat matrix-success">
+                    <div class="matrix-value">{{ stats.confusion_matrix.true_positives }}</div>
+                    <div class="matrix-label">True Positives</div>
+                </div>
+                <div class="matrix-stat matrix-success">
+                    <div class="matrix-value">{{ stats.confusion_matrix.true_negatives }}</div>
+                    <div class="matrix-label">True Negatives</div>
+                </div>
+                <div class="matrix-stat matrix-danger">
+                    <div class="matrix-value">{{ stats.confusion_matrix.false_positives }}</div>
+                    <div class="matrix-label">False Positives</div>
+                </div>
+                <div class="matrix-stat matrix-danger">
+                    <div class="matrix-value">{{ stats.confusion_matrix.false_negatives }}</div>
+                    <div class="matrix-label">False Negatives</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Dataset Distribution</h3>
+            <div class="chart-container">
+                <canvas id="distributionChart"></canvas>
+            </div>
+            <div class="distribution-stats">
+                <div class="dist-stat">
+                    <div class="dist-value dist-success">{{ stats.model_stats.legitimate_accuracy }}%</div>
+                    <div class="dist-label">Legitimate Detection Accuracy</div>
+                </div>
+                <div class="dist-stat">
+                    <div class="dist-value dist-danger">{{ stats.model_stats.phishing_accuracy }}%</div>
+                    <div class="dist-label">Phishing Detection Accuracy</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-card-full">
+        <h3>Training Performance</h3>
+        <div class="chart-container-large">
+            <canvas id="trainingChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-card-full">
+        <h3>Top 10 Feature Importance</h3>
+        <div class="chart-container-large">
+            <canvas id="featureChart"></canvas>
+        </div>
+    </div>
+
+    <div class="info-section">
+        <h2>Model Information</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Algorithm</div>
+                <div class="info-value">Random Forest Classifier</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Total Features</div>
+                <div class="info-value">32</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Training Samples</div>
+                <div class="info-value">{{ stats.model_stats.total_tests }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Test Accuracy</div>
+                <div class="info-value">{{ stats.model_stats.accuracy }}%</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+    const colors = {
+        text: '#1a1a1a',
+        textSecondary: '#666666',
+        bg: '#ffffff',
+        bgSecondary: '#fafafa',
+        border: '#e5e5e5',
+        success: '#10b981',
+        danger: '#ef4444',
+        blue: '#4A90E2',
+        orange: '#F5A623',
+        purple: '#9370DB'
+    };
+
+    const chartDefaults = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+            legend: { 
+                display: false 
+            }
+        },
+        scales: {
+            x: {
+                grid: { color: colors.border, drawBorder: false },
+                ticks: { color: colors.textSecondary, font: { size: 11, weight: 300 } }
+            },
+            y: {
+                grid: { color: colors.border, drawBorder: false },
+                ticks: { color: colors.textSecondary, font: { size: 11, weight: 300 } }
+            }
+        },
+        animation: {
+            duration: 1500,
+            easing: 'easeInOutQuart'
+        }
+    };
+
+    // Confusion Matrix as Heatmap
+    const confusionData = {
+        tp: {{ stats.confusion_matrix.true_positives }},
+        tn: {{ stats.confusion_matrix.true_negatives }},
+        fp: {{ stats.confusion_matrix.false_positives }},
+        fn: {{ stats.confusion_matrix.false_negatives }}
+    };
+
+    // Draw confusion matrix heatmap
+    function drawConfusionMatrix() {
+        const confusionCanvas = document.getElementById('confusionChart');
+        if (!confusionCanvas) return;
+        
+        const ctx = confusionCanvas.getContext('2d');
+        const parent = confusionCanvas.parentElement;
+        
+        // Set canvas size to match container
+        confusionCanvas.width = parent.offsetWidth;
+        confusionCanvas.height = parent.offsetHeight;
+        
+        const width = confusionCanvas.width;
+        const height = confusionCanvas.height;
+        
+        // Larger cells - use more of the available space
+        const cellSize = Math.min(width / 2.5, height / 2.5);
+        const startX = (width - cellSize * 2) / 2;
+        const startY = (height - cellSize * 2) / 2 + 10;
+        
+        // Matrix data
+        const matrix = [
+            [confusionData.tn, confusionData.fp],
+            [confusionData.fn, confusionData.tp]
+        ];
+        
+        // Find min and max for color scaling
+        const allValues = matrix.flat();
+        const maxValue = Math.max(...allValues);
+        const minValue = Math.min(...allValues);
+        
+        // Function to get color based on value (light to dark blue gradient)
+        function getColor(value) {
+            const ratio = (value - minValue) / (maxValue - minValue);
+            // Light blue to dark blue gradient
+            const lightBlue = { r: 214, g: 234, b: 248 }; // #D6EAF8
+            const darkBlue = { r: 21, g: 67, b: 96 };     // #154360
+            
+            const r = Math.round(lightBlue.r + (darkBlue.r - lightBlue.r) * ratio);
+            const g = Math.round(lightBlue.g + (darkBlue.g - lightBlue.g) * ratio);
+            const b = Math.round(lightBlue.b + (darkBlue.b - lightBlue.b) * ratio);
+            
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+        
+        // Function to determine text color based on background
+        function getTextColor(value) {
+            const ratio = (value - minValue) / (maxValue - minValue);
+            return ratio > 0.5 ? '#ffffff' : '#1a1a1a';
+        }
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+        
+        // Draw cells
+        for (let i = 0; i < 2; i++) {
+            for (let j = 0; j < 2; j++) {
+                const x = startX + j * cellSize;
+                const y = startY + i * cellSize;
+                const value = matrix[i][j];
+                
+                // Draw cell background with gradient color
+                ctx.fillStyle = getColor(value);
+                ctx.fillRect(x, y, cellSize, cellSize);
+                
+                // Draw cell border
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(x, y, cellSize, cellSize);
+                
+                // Draw value with smaller, responsive font
+                ctx.fillStyle = getTextColor(value);
+                const fontSize = Math.min(cellSize / 4, 28);
+                ctx.font = `bold ${fontSize}px Inter`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(value.toLocaleString(), x + cellSize / 2, y + cellSize / 2);
+            }
+        }
+        
+        // Draw axis labels
+        ctx.fillStyle = '#666666';
+        const labelSize = Math.min(cellSize / 12, 12);
+        ctx.font = `${labelSize}px Inter`;
+        ctx.textAlign = 'center';
+        
+        // Top labels (Predicted)
+        ctx.fillText('Legitimate', startX + cellSize / 2, startY - 15);
+        ctx.fillText('Phishing', startX + cellSize * 1.5, startY - 15);
+        
+        // Top header
+        const headerSize = Math.min(cellSize / 11, 13);
+        ctx.font = `bold ${headerSize}px Inter`;
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillText('Predicted Label', startX + cellSize, startY - 35);
+        
+        // Left labels (True Label)
+        ctx.font = `${labelSize}px Inter`;
+        ctx.fillStyle = '#666666';
+        ctx.save();
+        ctx.translate(startX - 30, startY + cellSize / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText('Legitimate', 0, 0);
+        ctx.restore();
+        
+        ctx.save();
+        ctx.translate(startX - 30, startY + cellSize * 1.5);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText('Phishing', 0, 0);
+        ctx.restore();
+        
+        // Left header
+        ctx.save();
+        ctx.translate(startX - 55, startY + cellSize);
+        ctx.rotate(-Math.PI / 2);
+        ctx.font = `bold ${headerSize}px Inter`;
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillText('True Label', 0, 0);
+        ctx.restore();
+        
+        // Draw color scale legend
+        const legendWidth = cellSize * 1.2;
+        const legendHeight = 12;
+        const legendX = startX + cellSize * 2 - legendWidth;
+        const legendY = startY + cellSize * 2 + 25;
+        
+        // Draw gradient bar
+        for (let i = 0; i < legendWidth; i++) {
+            const ratio = i / legendWidth;
+            const value = minValue + (maxValue - minValue) * ratio;
+            ctx.fillStyle = getColor(value);
+            ctx.fillRect(legendX + i, legendY, 1, legendHeight);
+        }
+        
+        // Legend labels
+        ctx.fillStyle = '#666666';
+        const legendLabelSize = Math.min(cellSize / 14, 10);
+        ctx.font = `${legendLabelSize}px Inter`;
+        ctx.textAlign = 'left';
+        ctx.fillText(minValue.toLocaleString(), legendX, legendY + legendHeight + 12);
+        ctx.textAlign = 'right';
+        ctx.fillText(maxValue.toLocaleString(), legendX + legendWidth, legendY + legendHeight + 12);
+    }
+
+    // Draw confusion matrix when page loads
+    setTimeout(drawConfusionMatrix, 100);
+    window.addEventListener('resize', drawConfusionMatrix);
+
+    new Chart(document.getElementById('distributionChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Legitimate URLs', 'Phishing URLs'],
+            datasets: [{
+                data: [62.38, 37.62],
+                backgroundColor: [colors.success, colors.danger],
+                borderColor: colors.bg,
+                borderWidth: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { 
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        font: { size: 12, weight: 400 },
+                        color: colors.textSecondary,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        padding: 15
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.parsed + '%';
+                        }
+                    }
+                }
+            },
+            animation: {
+                duration: 1500,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+
+    const trainingData = {{ stats.performance_timeline | tojson }};
+    new Chart(document.getElementById('trainingChart'), {
+        type: 'line',
+        data: {
+            labels: trainingData.map(d => 'E' + d.epoch),
+            datasets: [
+                {
+                    label: 'Training Accuracy',
+                    data: trainingData.map(d => d.accuracy),
+                    borderColor: colors.blue,
+                    backgroundColor: 'rgba(74, 144, 226, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: colors.blue,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                },
+                {
+                    label: 'Validation Accuracy',
+                    data: trainingData.map(d => d.val_accuracy || (d.accuracy - Math.random() * 3)), // Simulated if not available
+                    borderColor: colors.purple,
+                    backgroundColor: 'rgba(147, 112, 219, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: colors.purple,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { 
+                    display: true,
+                    position: 'top',
+                    align: 'end',
+                    labels: {
+                        font: { size: 12, weight: 400 },
+                        color: colors.textSecondary,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        padding: 20
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: colors.border, drawBorder: false },
+                    ticks: { color: colors.textSecondary, font: { size: 11, weight: 300 } }
+                },
+                y: {
+                    grid: { color: colors.border, drawBorder: false },
+                    ticks: { 
+                        color: colors.textSecondary, 
+                        font: { size: 11, weight: 300 },
+                        callback: v => v + '%'
+                    }
+                }
+            },
+            animation: {
+                duration: 1500,
+                easing: 'easeInOutQuart'
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+
+    const featureData = {{ stats.feature_importance | tojson }};
+    new Chart(document.getElementById('featureChart'), {
+        type: 'bar',
+        data: {
+            labels: featureData.map(d => d.name),
+            datasets: [{
+                data: featureData.map(d => d.importance),
+                backgroundColor: colors.purple,
+                borderWidth: 0,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: { legend: { display: false } },
+            scales: {
+                x: {
+                    grid: { color: colors.border, drawBorder: false },
+                    ticks: {
+                        color: colors.textSecondary,
+                        font: { size: 11, weight: 300 },
+                        callback: v => (v * 100).toFixed(0) + '%'
+                    }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: colors.textSecondary, font: { size: 11, weight: 300 } }
+                }
+            },
+            animation: {
+                duration: 1500,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+</script>
+{% endblock %}

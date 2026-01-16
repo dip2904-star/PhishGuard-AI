@@ -1,0 +1,724 @@
+{% extends "atoms_base.html" %}
+
+{% block content %}
+<style>
+    /* Enhanced History Page Design */
+    .page-container {
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Floating geometric decorations */
+    .history-decoration {
+        position: absolute;
+        pointer-events: none;
+        opacity: 0.06;
+        z-index: 0;
+    }
+
+    .history-shape-1 {
+        top: 20%;
+        right: 15%;
+        width: 140px;
+        height: 140px;
+        background: linear-gradient(135deg, #4A90E2, #7B68EE);
+        clip-path: circle(50%);
+        animation: floatRotate 22s ease-in-out infinite;
+    }
+
+    .history-shape-2 {
+        bottom: 25%;
+        left: 12%;
+        width: 110px;
+        height: 110px;
+        background: linear-gradient(135deg, #9370DB, #8B7EC8);
+        clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+        animation: floatRotate 18s ease-in-out infinite reverse;
+    }
+
+    @keyframes floatRotate {
+        0%, 100% {
+            transform: translateY(0px) rotate(0deg) scale(1);
+        }
+        33% {
+            transform: translateY(-30px) rotate(120deg) scale(1.08);
+        }
+        66% {
+            transform: translateY(-15px) rotate(240deg) scale(0.92);
+        }
+    }
+
+    /* Centered page header */
+    .page-header {
+        text-align: center;
+        margin-bottom: 64px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .page-header h1 {
+        font-size: 96px;
+        font-weight: 200;
+        letter-spacing: -5px;
+        margin-bottom: 16px;
+        background: linear-gradient(135deg, #1a1a1a 0%, #4A90E2 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: titleFadeIn 1s ease;
+        position: relative;
+        display: inline-block;
+    }
+
+    .page-header h1::after {
+        content: '';
+        position: absolute;
+        bottom: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #4A90E2, #9370DB);
+        border-radius: 2px;
+        animation: underlineExpand 1s ease 0.3s backwards;
+    }
+
+    @keyframes titleFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes underlineExpand {
+        from {
+            width: 0;
+            opacity: 0;
+        }
+        to {
+            width: 100px;
+            opacity: 1;
+        }
+    }
+
+    .page-header p {
+        font-size: 20px;
+        color: var(--text-secondary);
+        font-weight: 300;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    /* Search and filter bar */
+    .controls-bar {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        gap: 16px;
+        margin-bottom: 32px;
+        animation: fadeInUp 0.8s ease 0.3s backwards;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .search-box {
+        flex: 1;
+        position: relative;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 16px 48px 16px 20px;
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        font-size: 14px;
+        font-weight: 300;
+        transition: all 0.3s ease;
+        outline: none;
+    }
+
+    .search-input:focus {
+        border-color: #4A90E2;
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        font-size: 16px;
+        pointer-events: none;
+    }
+
+    .filter-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .filter-btn {
+        padding: 16px 24px;
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .filter-btn:hover {
+        border-color: #4A90E2;
+        background: rgba(74, 144, 226, 0.05);
+    }
+
+    .filter-btn.active {
+        background: #4A90E2;
+        color: white;
+        border-color: #4A90E2;
+    }
+
+    /* Enhanced summary grid */
+    .summary-grid {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        margin-bottom: 48px;
+    }
+
+    .summary-card {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        padding: 40px 32px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: cardSlideUp 0.8s ease backwards;
+    }
+
+    .summary-card:nth-child(1) { animation-delay: 0.4s; }
+    .summary-card:nth-child(2) { animation-delay: 0.5s; }
+    .summary-card:nth-child(3) { animation-delay: 0.6s; }
+
+    @keyframes cardSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .summary-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        transform: scaleX(0);
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .summary-card:nth-child(1)::before {
+        background: linear-gradient(90deg, transparent, #10b981, transparent);
+    }
+
+    .summary-card:nth-child(2)::before {
+        background: linear-gradient(90deg, transparent, #ef4444, transparent);
+    }
+
+    .summary-card:nth-child(3)::before {
+        background: linear-gradient(90deg, transparent, #4A90E2, transparent);
+    }
+
+    .summary-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .summary-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+        border-color: transparent;
+    }
+
+    .summary-number {
+        font-size: 64px;
+        font-weight: 200;
+        line-height: 1;
+        letter-spacing: -3px;
+        margin-bottom: 16px;
+        transition: all 0.4s ease;
+    }
+
+    .summary-card:hover .summary-number {
+        transform: scale(1.08);
+    }
+
+    .summary-number.success {
+        color: var(--success);
+    }
+
+    .summary-card:nth-child(1):hover .summary-number {
+        filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.4));
+    }
+
+    .summary-number.danger {
+        color: var(--danger);
+    }
+
+    .summary-card:nth-child(2):hover .summary-number {
+        filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.4));
+    }
+
+    .summary-card:nth-child(3):hover .summary-number {
+        color: #4A90E2;
+        filter: drop-shadow(0 0 20px rgba(74, 144, 226, 0.4));
+    }
+
+    .summary-label {
+        font-size: 11px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 600;
+    }
+
+    /* Enhanced table */
+    .table-card {
+        position: relative;
+        z-index: 1;
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        animation: fadeInUp 0.8s ease 0.7s backwards;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table thead th {
+        text-align: left;
+        padding: 24px 32px;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        border-bottom: 2px solid var(--border);
+        background: var(--bg-secondary);
+    }
+
+    .status-header,
+    .confidence-header {
+        text-align: center;
+    }
+
+    .time-header {
+        text-align: right;
+    }
+
+    .data-table tbody td {
+        padding: 24px 32px;
+        font-size: 14px;
+        font-weight: 300;
+        border-bottom: 1px solid var(--border);
+        transition: all 0.3s ease;
+    }
+
+    .status-cell,
+    .confidence-cell {
+        text-align: center;
+    }
+
+    .data-table tbody tr {
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .data-table tbody tr::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: linear-gradient(180deg, #4A90E2, #9370DB);
+        transform: scaleY(0);
+        transition: transform 0.3s ease;
+    }
+
+    .data-table tbody tr:hover::before {
+        transform: scaleY(1);
+    }
+
+    .data-table tbody tr:hover {
+        background: linear-gradient(90deg, rgba(74, 144, 226, 0.03), transparent);
+        transform: translateX(8px);
+    }
+
+    .data-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .index-cell {
+        width: 80px;
+        text-align: center;
+        color: var(--text-secondary);
+        font-weight: 500;
+        font-size: 13px;
+    }
+
+    .url-cell {
+        max-width: 500px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+    }
+
+    .confidence-cell {
+        font-weight: 500;
+        font-size: 15px;
+    }
+
+    .time-cell {
+        color: var(--text-secondary);
+        font-size: 13px;
+        white-space: nowrap;
+        text-align: right;
+    }
+
+    /* Enhanced badges */
+    .badge {
+        display: inline-block;
+        padding: 8px 16px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+    }
+
+    .badge.success {
+        color: #059669;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
+
+    .badge.success:hover {
+        background: rgba(16, 185, 129, 0.15);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+        transform: scale(1.05);
+    }
+
+    .badge.danger {
+        color: #dc2626;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    }
+
+    .badge.danger:hover {
+        background: rgba(239, 68, 68, 0.15);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+        transform: scale(1.05);
+    }
+
+    /* Enhanced empty state */
+    .empty-state {
+        text-align: center;
+        padding: 120px 40px;
+        position: relative;
+        z-index: 1;
+        animation: fadeInUp 0.8s ease 0.3s backwards;
+    }
+
+    .empty-icon {
+        font-size: 120px;
+        margin-bottom: 40px;
+        opacity: 0.15;
+        background: linear-gradient(135deg, #4A90E2, #9370DB);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: iconFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes iconFloat {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+
+    .empty-state h2 {
+        font-size: 48px;
+        font-weight: 200;
+        margin-bottom: 16px;
+        letter-spacing: -2px;
+    }
+
+    .empty-state p {
+        font-size: 18px;
+        color: var(--text-secondary);
+        margin-bottom: 48px;
+        font-weight: 300;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .btn-primary-empty {
+        display: inline-block;
+        padding: 20px 56px;
+        background: linear-gradient(135deg, #4A90E2, #7B68EE);
+        color: white;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-primary-empty::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+
+    .btn-primary-empty:hover::before {
+        width: 400px;
+        height: 400px;
+    }
+
+    .btn-primary-empty:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 40px rgba(74, 144, 226, 0.4);
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .summary-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 56px;
+            letter-spacing: -3px;
+        }
+
+        .controls-bar {
+            flex-direction: column;
+        }
+
+        .filter-buttons {
+            overflow-x: auto;
+        }
+
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .data-table thead th,
+        .data-table tbody td {
+            padding: 16px;
+        }
+
+        .index-cell {
+            display: none;
+        }
+    }
+</style>
+
+<!-- Floating Geometric Decorations -->
+<div class="history-decoration history-shape-1"></div>
+<div class="history-decoration history-shape-2"></div>
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Scan History</h1>
+        <p>Complete archive of all your URL security assessments</p>
+    </div>
+
+    {% if history %}
+    <!-- Search and Filter Controls -->
+    <div class="controls-bar">
+        <div class="search-box">
+            <input 
+                type="text" 
+                class="search-input" 
+                id="searchInput"
+                placeholder="Search by URL..."
+            >
+            <i class="fas fa-search search-icon"></i>
+        </div>
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="success">Legitimate</button>
+            <button class="filter-btn" data-filter="danger">Phishing</button>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="summary-number success">
+                {{ history|selectattr('prediction_class', 'equalto', 'success')|list|length }}
+            </div>
+            <div class="summary-label">Legitimate URLs</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-number danger">
+                {{ history|selectattr('prediction_class', 'equalto', 'danger')|list|length }}
+            </div>
+            <div class="summary-label">Phishing Threats</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-number">
+                {{ history|length }}
+            </div>
+            <div class="summary-label">Total Scans</div>
+        </div>
+    </div>
+
+    <!-- History Table -->
+    <div class="table-card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th class="index-cell">#</th>
+                    <th class="url-header">URL</th>
+                    <th class="status-header">Status</th>
+                    <th class="confidence-header">Confidence</th>
+                    <th class="time-header">Time</th>
+                </tr>
+            </thead>
+            <tbody id="historyTableBody">
+                {% for item in history|reverse %}
+                <tr data-status="{{ item.prediction_class }}">
+                    <td class="index-cell">{{ loop.index }}</td>
+                    <td class="url-cell">{{ item.url }}</td>
+                    <td class="status-cell">
+                        {% if item.prediction_class == 'success' %}
+                        <span class="badge success">Legitimate</span>
+                        {% else %}
+                        <span class="badge danger">Phishing</span>
+                        {% endif %}
+                    </td>
+                    <td class="confidence-cell">{{ item.confidence }}</td>
+                    <td class="time-cell">{{ item.timestamp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="fas fa-inbox"></i>
+        </div>
+        <h2>No Scans Yet</h2>
+        <p>Start analyzing URLs to build your security scan history</p>
+        <a href="{{ url_for('predict') }}" class="btn-primary-empty">
+            <span>Start First Scan</span>
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const tableRows = document.querySelectorAll('#historyTableBody tr');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    
+    let currentFilter = 'all';
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            tableRows.forEach(row => {
+                const url = row.querySelector('.url-cell').textContent.toLowerCase();
+                const matchesSearch = url.includes(searchTerm);
+                const matchesFilter = currentFilter === 'all' || row.dataset.status === currentFilter;
+                
+                if (matchesSearch && matchesFilter) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // Filter functionality
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Update active state
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            currentFilter = this.dataset.filter;
+            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+            
+            tableRows.forEach(row => {
+                const url = row.querySelector('.url-cell').textContent.toLowerCase();
+                const matchesSearch = !searchTerm || url.includes(searchTerm);
+                const matchesFilter = currentFilter === 'all' || row.dataset.status === currentFilter;
+                
+                if (matchesSearch && matchesFilter) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishGuard AI - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f8f8;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --border: #e5e5e5;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 20px 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid transparent;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        nav.scrolled {
+            padding: 16px 48px;
+            border-bottom-color: var(--border);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.02);
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 500;
+            letter-spacing: -0.3px;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .logo:hover {
+            opacity: 0.6;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 400;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 48px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Spiral Canvas Container */
+        #spiral-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.6;
+        }
+
+        #spiral-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 120px;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Scroll reveal animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+                        transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .fade-in-delay-1 { transition-delay: 0.1s; }
+        .fade-in-delay-2 { transition-delay: 0.2s; }
+        .fade-in-delay-3 { transition-delay: 0.3s; }
+
+        .hero-left h1 {
+            font-size: 72px;
+            font-weight: 200;
+            line-height: 1.1;
+            margin-bottom: 32px;
+            letter-spacing: -3px;
+        }
+
+        .hero-left h1 strong {
+            font-weight: 500;
+            display: inline-block;
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .hero-left h1 strong:hover {
+            background: linear-gradient(
+                135deg,
+                #4A90E2 0%,
+                #5B7CED 25%,
+                #7B68EE 50%,
+                #9370DB 75%,
+                #8B7EC8 100%
+            );
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transform: scale(1.02);
+        }
+
+        .hero-left p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 48px;
+            font-weight: 300;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 48px;
+        }
+
+        .stat-item {
+            border-left: 1px solid var(--border);
+            padding-left: 24px;
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 200;
+            letter-spacing: -2px;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 500;
+        }
+
+        /* Login Form */
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            padding: 64px;
+            transition: box-shadow 0.3s ease;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .login-card:hover {
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-header {
+            margin-bottom: 48px;
+        }
+
+        .form-header h2 {
+            font-size: 32px;
+            font-weight: 200;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+
+        .form-header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 300;
+        }
+
+        .form-group {
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 16px 0;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 300;
+            transition: border-color 0.3s ease;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-bottom-color: var(--text-primary);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 18px;
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 16px;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.8;
+            transform: translateY(-2px);
+        }
+
+        .form-footer {
+            margin-top: 32px;
+            text-align: center;
+            padding-top: 32px;
+            border-top: 1px solid var(--border);
+        }
+
+        .form-footer p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 300;
+        }
+
+        .form-footer a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 400;
+            transition: opacity 0.3s ease;
+        }
+
+        .form-footer a:hover {
+            opacity: 0.6;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--text-secondary);
+            font-size: 20px;
+            animation: bounce 2s infinite;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            50% {
+                transform: translateX(-50%) translateY(10px);
+            }
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 120px 48px;
+            background: var(--bg-secondary);
+        }
+
+        .features-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title-container {
+            margin-bottom: 80px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Scrolling text wrapper */
+        .scrolling-text-wrapper {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            cursor: none;
+        }
+
+        /* Scrolling text animation */
+        .scrolling-text {
+            display: flex;
+            white-space: nowrap;
+            animation: scrollLeft 20s linear infinite;
+            position: relative;
+        }
+
+        @keyframes scrollLeft {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-33.333%);
+            }
+        }
+
+        .text-item {
+            font-size: 96px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            padding: 0 150px;
+            display: inline-block;
+            color: #e5e5e5;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        /* Gradient layer that gets revealed */
+        .text-item::before {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            padding: 0 150px;
+            background: linear-gradient(
+                135deg,
+                #4A90E2 0%,
+                #7B68EE 25%,
+                #9370DB 50%,
+                #8B7EC8 75%,
+                #5B7CED 100%
+            );
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            clip-path: circle(0px at var(--mouse-x, 50%) var(--mouse-y, 50%));
+            transition: clip-path 0.2s ease;
+            pointer-events: none;
+        }
+
+        .scrolling-text-wrapper:hover .text-item::before {
+            clip-path: circle(150px at var(--mouse-x, 50%) var(--mouse-y, 50%));
+        }
+
+        /* Pause animation on hover */
+        .scrolling-text-wrapper:hover .scrolling-text {
+            animation-play-state: paused;
+        }
+
+        /* Responsive font sizes */
+        @media (max-width: 768px) {
+            .text-item {
+                font-size: 48px;
+                padding: 0 75px;
+            }
+            
+            .text-item::before {
+                padding: 0 75px;
+            }
+
+            .scrolling-text-wrapper:hover .text-item::before {
+                clip-path: circle(100px at var(--mouse-x, 50%) var(--mouse-y, 50%));
+            }
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 48px;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 48px 32px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 0;
+        }
+
+        /* Individual card colors on hover */
+        .feature-card:nth-child(1)::before {
+            background: linear-gradient(135deg, rgba(74, 144, 226, 0.08) 0%, rgba(74, 144, 226, 0.02) 100%);
+        }
+
+        .feature-card:nth-child(2)::before {
+            background: linear-gradient(135deg, rgba(245, 166, 35, 0.08) 0%, rgba(245, 166, 35, 0.02) 100%);
+        }
+
+        .feature-card:nth-child(3)::before {
+            background: linear-gradient(135deg, rgba(126, 211, 33, 0.08) 0%, rgba(126, 211, 33, 0.02) 100%);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.08);
+            border-color: transparent;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Colorize icons on hover */
+        .feature-card:nth-child(1):hover .feature-icon {
+            color: #4A90E2;
+            opacity: 1;
+        }
+
+        .feature-card:nth-child(2):hover .feature-icon {
+            color: #F5A623;
+            opacity: 1;
+        }
+
+        .feature-card:nth-child(3):hover .feature-icon {
+            color: #7ED321;
+            opacity: 1;
+        }
+
+        /* Colorize titles on hover */
+        .feature-card:nth-child(1):hover h3 {
+            background: linear-gradient(135deg, #4A90E2, #50C8E8);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-card:nth-child(2):hover h3 {
+            background: linear-gradient(135deg, #F5A623, #FFD93D);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-card:nth-child(3):hover h3 {
+            background: linear-gradient(135deg, #7ED321, #A8E063);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-icon {
+            font-size: 40px;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            opacity: 0.3;
+            transition: all 0.4s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card h3 {
+            font-size: 20px;
+            font-weight: 400;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+            transition: all 0.4s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-weight: 300;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                gap: 64px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            #spiral-container {
+                width: 100%;
+                height: 100%;
+                opacity: 0.3;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 16px 24px;
+            }
+
+            .hero {
+                padding: 100px 24px 60px;
+            }
+
+            .hero-left h1 {
+                font-size: 40px;
+            }
+
+            .login-card {
+                padding: 40px 32px;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 32px;
+            }
+
+            .features-section {
+                padding: 80px 24px;
+            }
+
+            #spiral-container {
+                width: 120%;
+                height: 120%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="nav">
+        <a href="/" class="logo">PhishGuard AI</a>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#about">About</a>
+            <a href="/signup">Sign Up</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <!-- Animated Spiral Background -->
+        <div id="spiral-container">
+            <canvas id="spiral-canvas"></canvas>
+        </div>
+
+        <div class="hero-content">
+            <div class="hero-left">
+                <h1 class="fade-in">
+                    Advanced<br>
+                    <strong>Phishing</strong><br>
+                    Detection
+                </h1>
+                <p class="fade-in fade-in-delay-1">
+                    Leveraging machine learning to identify and neutralize 
+                    sophisticated phishing threats in real-time with 
+                    industry-leading accuracy.
+                </p>
+                <div class="hero-stats fade-in fade-in-delay-2">
+                    <div class="stat-item">
+                        <div class="stat-number">97%</div>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">&lt;1s</div>
+                        <div class="stat-label">Response</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">32+</div>
+                        <div class="stat-label">Features</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-right fade-in fade-in-delay-3">
+                <div class="login-card">
+                    <div class="form-header">
+                        <h2>Sign In</h2>
+                        <p>Access your security dashboard</p>
+                    </div>
+
+                    <form method="POST" action="/login">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input 
+                                type="text" 
+                                id="username" 
+                                name="username" 
+                                placeholder="Enter username" 
+                                required 
+                                autofocus
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password" 
+                                placeholder="Enter password" 
+                                required
+                            >
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            Sign In
+                        </button>
+                    </form>
+
+                    <div class="form-footer">
+                        <p>
+                            Don't have an account? 
+                            <a href="/signup">Create one</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <div class="features-content">
+            <div class="section-title-container fade-in">
+                <div class="scrolling-text-wrapper">
+                    <div class="scrolling-text">
+                        <span class="text-item" data-text="Powered by Advanced Machine Learning">Powered by Advanced Machine Learning</span>
+                        <span class="text-item" data-text="Powered by Advanced Machine Learning">Powered by Advanced Machine Learning</span>
+                        <span class="text-item" data-text="Powered by Advanced Machine Learning">Powered by Advanced Machine Learning</span>
+                    </div>
+                </div>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>AI-Powered Detection</h3>
+                    <p>
+                        Random Forest algorithms analyze 32+ URL features 
+                        to identify sophisticated phishing patterns
+                    </p>
+                </div>
+                <div class="feature-card fade-in fade-in-delay-1">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Real-Time Analysis</h3>
+                    <p>
+                        Sub-second response times for immediate threat 
+                        assessment and security decisions
+                    </p>
+                </div>
+                <div class="feature-card fade-in fade-in-delay-2">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Enterprise Security</h3>
+                    <p>
+                        Built for organizations demanding reliable, 
+                        scalable protection with comprehensive audit trails
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // ========================================
+        // 3D Spiral Animation (AtomsWorld Style)
+        // ========================================
+        const canvas = document.getElementById('spiral-canvas');
+        const scene = new THREE.Scene();
+        const container = document.getElementById('spiral-container');
+        const camera = new THREE.PerspectiveCamera(
+            75, 
+            container.offsetWidth / container.offsetHeight, 
+            0.1, 
+            1000
+        );
+        const renderer = new THREE.WebGLRenderer({ 
+            canvas: canvas, 
+            alpha: true, 
+            antialias: true 
+        });
+
+
+        renderer.setSize(container.offsetWidth, container.offsetHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        camera.position.z = 200;
+
+        // Particle system
+        const particles = [];
+        const particleCount = 1000;
+        
+        // Sophisticated blue-purple tech palette
+        const colors = [
+            new THREE.Color(0x4A90E2), // Blue
+            new THREE.Color(0x5B7CED), // Periwinkle Blue
+            new THREE.Color(0x7B68EE), // Medium Slate Blue
+            new THREE.Color(0x9370DB), // Medium Purple
+            new THREE.Color(0x8B7EC8), // Soft Purple
+            new THREE.Color(0x6B8DD6), // Steel Blue
+            new THREE.Color(0x4F9FD9), // Sky Blue
+        ];
+
+        // Create triangular particles
+        class Particle {
+            constructor(index) {
+                this.index = index;
+                
+                // Create triangle geometry
+                const geometry = new THREE.BufferGeometry();
+                const size = Math.random() * 12 + 4;
+                const vertices = new Float32Array([
+                    0, size * 0.866, 0,
+                    -size * 0.5, -size * 0.433, 0,
+                    size * 0.5, -size * 0.433, 0
+                ]);
+                geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+                
+                // Color selection
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const material = new THREE.MeshBasicMaterial({ 
+                    color: color,
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.7
+                });
+                
+                this.mesh = new THREE.Mesh(geometry, material);
+                
+                // Spiral positioning (fibonacci-like distribution) - spread wider
+                const phi = index * 0.12;
+                const theta = index * 0.06;
+                const radius = 60 + index * 0.5;
+                
+                this.baseX = radius * Math.sin(theta) * Math.cos(phi);
+                this.baseY = radius * Math.sin(theta) * Math.sin(phi);
+                this.baseZ = radius * Math.cos(theta) - 50; // Offset Z for better depth
+                
+                this.mesh.position.set(this.baseX, this.baseY, this.baseZ);
+                
+                // Random rotation speeds
+                this.rotationSpeed = {
+                    x: (Math.random() - 0.5) * 0.015,
+                    y: (Math.random() - 0.5) * 0.015,
+                    z: (Math.random() - 0.5) * 0.015
+                };
+                
+                scene.add(this.mesh);
+            }
+            
+            update(time) {
+                // Gentle rotation of the entire sphere
+                const globalRotation = time * 0.0001;
+                
+                const x = this.baseX;
+                const y = this.baseY;
+                const z = this.baseZ;
+                
+                // Rotate around Y axis
+                this.mesh.position.x = x * Math.cos(globalRotation) - z * Math.sin(globalRotation);
+                this.mesh.position.y = y;
+                this.mesh.position.z = x * Math.sin(globalRotation) + z * Math.cos(globalRotation);
+                
+                // Individual particle rotation
+                this.mesh.rotation.x += this.rotationSpeed.x;
+                this.mesh.rotation.y += this.rotationSpeed.y;
+                this.mesh.rotation.z += this.rotationSpeed.z;
+                
+                // Gentle floating effect
+                this.mesh.position.y += Math.sin(time * 0.0008 + this.index * 0.1) * 0.08;
+            }
+        }
+
+        // Create particles
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle(i));
+        }
+
+        // Create connecting lines (subtle)
+        const linesMaterial = new THREE.LineBasicMaterial({ 
+            color: 0xdddddd, 
+            transparent: true, 
+            opacity: 0.12 
+        });
+        const linesGeometry = new THREE.BufferGeometry();
+        const linePositions = [];
+
+        // Create line connections between nearby particles
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < Math.min(i + 4, particles.length); j++) {
+                linePositions.push(
+                    particles[i].mesh.position.x,
+                    particles[i].mesh.position.y,
+                    particles[i].mesh.position.z,
+                    particles[j].mesh.position.x,
+                    particles[j].mesh.position.y,
+                    particles[j].mesh.position.z
+                );
+            }
+        }
+
+        linesGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+        const lines = new THREE.LineSegments(linesGeometry, linesMaterial);
+        scene.add(lines);
+
+        // Mouse interaction
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetRotationX = 0;
+        let targetRotationY = 0;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            targetRotationY = mouseX * 0.2;
+            targetRotationX = mouseY * 0.2;
+        });
+
+        // Animation loop
+        let time = 0;
+        function animateSpiral() {
+            requestAnimationFrame(animateSpiral);
+            time++;
+            
+            // Update particles
+            particles.forEach(particle => particle.update(time));
+            
+            // Update line positions
+            const positions = lines.geometry.attributes.position.array;
+            let index = 0;
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < Math.min(i + 4, particles.length); j++) {
+                    positions[index++] = particles[i].mesh.position.x;
+                    positions[index++] = particles[i].mesh.position.y;
+                    positions[index++] = particles[i].mesh.position.z;
+                    positions[index++] = particles[j].mesh.position.x;
+                    positions[index++] = particles[j].mesh.position.y;
+                    positions[index++] = particles[j].mesh.position.z;
+                }
+            }
+            lines.geometry.attributes.position.needsUpdate = true;
+            
+            // Smooth camera rotation based on mouse
+            scene.rotation.y += (targetRotationY - scene.rotation.y) * 0.05;
+            scene.rotation.x += (targetRotationX - scene.rotation.x) * 0.05;
+            
+            renderer.render(scene, camera);
+        }
+
+        animateSpiral();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const container = document.getElementById('spiral-container');
+            camera.aspect = container.offsetWidth / container.offsetHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.offsetWidth, container.offsetHeight);
+        });
+
+        // ========================================
+        // Page Interactions
+        // ========================================
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Scroll reveal animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all fade-in elements
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Trigger animations for elements in viewport on load
+            setTimeout(() => {
+                document.querySelectorAll('.fade-in').forEach(el => {
+                    const rect = el.getBoundingClientRect();
+                    if (rect.top < window.innerHeight && rect.bottom > 0) {
+                        el.classList.add('visible');
+                    }
+                });
+            }, 100);
+        });
+
+        // Mouse tracking for scrolling text spotlight effect
+        const scrollingWrapper = document.querySelector('.scrolling-text-wrapper');
+        const textItems = document.querySelectorAll('.text-item');
+        
+        if (scrollingWrapper) {
+            scrollingWrapper.addEventListener('mousemove', (e) => {
+                const rect = scrollingWrapper.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                
+                textItems.forEach(item => {
+                    item.style.setProperty('--mouse-x', `${x}%`);
+                    item.style.setProperty('--mouse-y', `${y}%`);
+                });
+            });
+
+            scrollingWrapper.addEventListener('mouseleave', () => {
+                textItems.forEach(item => {
+                    item.style.setProperty('--mouse-x', '50%');
+                    item.style.setProperty('--mouse-y', '50%');
+                });
+            });
+        }
+
+        // Scroll indicator click
+        document.querySelector('.scroll-indicator').addEventListener('click', () => {
+            document.querySelector('.features-section').scrollIntoView({ behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>

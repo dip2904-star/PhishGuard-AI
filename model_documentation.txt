@@ -1,0 +1,32 @@
+======================================================================
+PHISHING DETECTION MODEL - FINAL DOCUMENTATION
+======================================================================
+
+Final Model: Random Forest
+
+Model Comparison:
+              Model  Accuracy  Precision   Recall  F1-Score
+Logistic Regression  0.859783   0.876685 0.438060  0.584206
+      Random Forest  0.937254   0.900241 0.810812  0.853190
+            XGBoost  0.932065   0.908524 0.776021  0.837061
+
+Best Hyperparameters:
+  n_estimators: 300
+  min_samples_split: 5
+  min_samples_leaf: 2
+  max_depth: None
+
+Final Test Results:
+  Accuracy:  0.9382
+  Precision: 0.9112
+  Recall:    0.8020
+  F1-Score:  0.8531
+
+Generated Visualizations:
+  - Baseline model comparison chart
+  - Confusion matrices for all models
+  - Performance metrics bar charts
+  - ROC curves for all models
+  - Feature importance plots (for tree-based models)
+
+All plots saved in 'plots/' directory

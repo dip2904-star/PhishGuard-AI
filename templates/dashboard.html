@@ -1,0 +1,801 @@
+{% extends "atoms_base.html" %}
+
+{% block content %}
+<style>
+    /* Premium Dashboard Redesign */
+    .page-container {
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Animated gradient background overlay */
+    .dashboard-bg-gradient {
+        position: fixed;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+            circle at 20% 30%,
+            rgba(74, 144, 226, 0.03) 0%,
+            transparent 50%
+        ),
+        radial-gradient(
+            circle at 80% 70%,
+            rgba(245, 166, 35, 0.03) 0%,
+            transparent 50%
+        ),
+        radial-gradient(
+            circle at 50% 50%,
+            rgba(126, 211, 33, 0.02) 0%,
+            transparent 50%
+        );
+        animation: gradientShift 20s ease infinite;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    @keyframes gradientShift {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        33% { transform: translate(-5%, 5%) rotate(120deg); }
+        66% { transform: translate(5%, -5%) rotate(240deg); }
+    }
+
+    /* Floating particles */
+    .particle {
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+        opacity: 0.15;
+        z-index: 0;
+    }
+
+    .particle-1 {
+        width: 4px;
+        height: 4px;
+        background: #4A90E2;
+        top: 20%;
+        left: 15%;
+        animation: floatParticle 15s ease-in-out infinite;
+    }
+
+    .particle-2 {
+        width: 6px;
+        height: 6px;
+        background: #F5A623;
+        top: 60%;
+        right: 20%;
+        animation: floatParticle 18s ease-in-out infinite;
+        animation-delay: 3s;
+    }
+
+    .particle-3 {
+        width: 5px;
+        height: 5px;
+        background: #7ED321;
+        bottom: 30%;
+        left: 25%;
+        animation: floatParticle 20s ease-in-out infinite;
+        animation-delay: 6s;
+    }
+
+    .particle-4 {
+        width: 7px;
+        height: 7px;
+        background: #E57373;
+        top: 40%;
+        right: 30%;
+        animation: floatParticle 22s ease-in-out infinite;
+        animation-delay: 9s;
+    }
+
+    @keyframes floatParticle {
+        0%, 100% {
+            transform: translate(0, 0) scale(1);
+            opacity: 0.15;
+        }
+        25% {
+            transform: translate(50px, -50px) scale(1.5);
+            opacity: 0.25;
+        }
+        50% {
+            transform: translate(100px, 0) scale(1);
+            opacity: 0.1;
+        }
+        75% {
+            transform: translate(50px, 50px) scale(1.2);
+            opacity: 0.2;
+        }
+    }
+
+    /* Enhanced page header */
+    .page-header {
+        position: relative;
+        z-index: 1;
+        margin-bottom: 48px;
+    }
+
+    .page-header h1 {
+        font-size: 64px;
+        font-weight: 200;
+        letter-spacing: -3px;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, #1a1a1a 0%, #4A90E2 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: titleFadeIn 1s ease;
+    }
+
+    @keyframes titleFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .page-header p {
+        font-size: 18px;
+        color: var(--text-secondary);
+        font-weight: 300;
+    }
+
+    /* Redesigned stats grid with staggered animation */
+    .stats-grid {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        margin-bottom: 48px;
+    }
+
+    .stat-card {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        padding: 40px 32px;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: cardSlideUp 0.8s ease backwards;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+    @keyframes cardSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Colored top border indicator */
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, currentColor, transparent);
+        transform: scaleX(0);
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .stat-card:nth-child(1)::before { color: #4A90E2; }
+    .stat-card:nth-child(2)::before { color: #F5A623; }
+    .stat-card:nth-child(3)::before { color: #E57373; }
+    .stat-card:nth-child(4)::before { color: #7ED321; }
+
+    .stat-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    /* Gradient overlay on hover */
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .stat-card:nth-child(1)::after {
+        background: radial-gradient(circle at bottom right, rgba(74, 144, 226, 0.1), transparent);
+    }
+
+    .stat-card:nth-child(2)::after {
+        background: radial-gradient(circle at bottom right, rgba(245, 166, 35, 0.1), transparent);
+    }
+
+    .stat-card:nth-child(3)::after {
+        background: radial-gradient(circle at bottom right, rgba(229, 115, 115, 0.1), transparent);
+    }
+
+    .stat-card:nth-child(4)::after {
+        background: radial-gradient(circle at bottom right, rgba(126, 211, 33, 0.1), transparent);
+    }
+
+    .stat-card:hover::after {
+        opacity: 1;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-12px) scale(1.03);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        border-color: transparent;
+    }
+
+    /* Stat card content */
+    .stat-label {
+        font-size: 11px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-number {
+        font-size: 56px;
+        font-weight: 200;
+        line-height: 1;
+        letter-spacing: -3px;
+        margin-bottom: 16px;
+        position: relative;
+        z-index: 1;
+        display: inline-block;
+        transition: all 0.4s ease;
+    }
+
+    .stat-card:nth-child(1):hover .stat-number {
+        background: linear-gradient(135deg, #4A90E2, #50C8E8);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        transform: scale(1.08);
+    }
+
+    .stat-card:nth-child(2):hover .stat-number {
+        background: linear-gradient(135deg, #F5A623, #FFD93D);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        transform: scale(1.08);
+    }
+
+    .stat-card:nth-child(3):hover .stat-number {
+        background: linear-gradient(135deg, #E57373, #FF8A80);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        transform: scale(1.08);
+    }
+
+    .stat-card:nth-child(4):hover .stat-number {
+        background: linear-gradient(135deg, #7ED321, #A8E063);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        transform: scale(1.08);
+    }
+
+    .stat-description {
+        font-size: 13px;
+        color: var(--text-secondary);
+        font-weight: 300;
+        line-height: 1.6;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Icon indicators for stats */
+    .stat-icon {
+        position: absolute;
+        top: 32px;
+        right: 32px;
+        font-size: 48px;
+        opacity: 0.08;
+        z-index: 0;
+        transition: all 0.5s ease;
+    }
+
+    .stat-card:hover .stat-icon {
+        opacity: 0.15;
+        transform: scale(1.2) rotate(10deg);
+    }
+
+    /* Enhanced detection grid */
+    .detection-grid {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+        margin-bottom: 64px;
+    }
+
+    .detection-card {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        padding: 48px 40px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .detection-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        transform: scaleY(0);
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .detection-card:nth-child(1)::before {
+        background: linear-gradient(180deg, #10b981, #059669);
+    }
+
+    .detection-card:nth-child(2)::before {
+        background: linear-gradient(180deg, #ef4444, #dc2626);
+    }
+
+    .detection-card:hover::before {
+        transform: scaleY(1);
+    }
+
+    .detection-card:hover {
+        transform: translateX(8px);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+        border-color: transparent;
+    }
+
+    .detection-header h3 {
+        font-size: 28px;
+        font-weight: 300;
+        margin-bottom: 32px;
+        letter-spacing: -1px;
+    }
+
+    .detection-number {
+        font-size: 72px;
+        font-weight: 200;
+        line-height: 1;
+        letter-spacing: -4px;
+        margin-bottom: 24px;
+        display: inline-block;
+        position: relative;
+    }
+
+    .detection-number.success {
+        color: var(--success);
+        text-shadow: 0 0 40px rgba(16, 185, 129, 0.2);
+    }
+
+    .detection-number.danger {
+        color: var(--danger);
+        text-shadow: 0 0 40px rgba(239, 68, 68, 0.2);
+    }
+
+    /* Enhanced progress bar */
+    .progress-bar {
+        height: 6px;
+        background: var(--border);
+        margin-bottom: 20px;
+        overflow: hidden;
+        border-radius: 3px;
+        position: relative;
+    }
+
+    .progress-fill {
+        height: 100%;
+        transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        border-radius: 3px;
+    }
+
+    .progress-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.3),
+            transparent
+        );
+        animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    .progress-fill.success {
+        background: linear-gradient(90deg, #10b981, #34d399);
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .progress-fill.danger {
+        background: linear-gradient(90deg, #ef4444, #f87171);
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+    }
+
+    .detection-body p {
+        font-size: 14px;
+        color: var(--text-secondary);
+        font-weight: 300;
+        line-height: 1.8;
+    }
+
+    /* Section header redesign */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .section-header h2 {
+        font-size: 36px;
+        font-weight: 300;
+        letter-spacing: -1.5px;
+        position: relative;
+        display: inline-block;
+    }
+
+    .section-header h2::before {
+        content: '';
+        position: absolute;
+        left: -24px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 24px;
+        background: linear-gradient(180deg, #4A90E2, #7ED321);
+        border-radius: 2px;
+    }
+
+    .link-button {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 12px 24px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .link-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(74, 144, 226, 0.1), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .link-button:hover {
+        color: #4A90E2;
+        border-color: #4A90E2;
+        transform: translateX(4px);
+    }
+
+    .link-button:hover::before {
+        left: 100%;
+    }
+
+    /* Enhanced table */
+    .table-card {
+        position: relative;
+        z-index: 1;
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table thead th {
+        text-align: left;
+        padding: 24px 32px;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        border-bottom: 2px solid var(--border);
+        background: var(--bg-secondary);
+    }
+
+    .data-table tbody td {
+        padding: 24px 32px;
+        font-size: 14px;
+        font-weight: 300;
+        border-bottom: 1px solid var(--border);
+        transition: all 0.3s ease;
+    }
+
+    .data-table tbody tr {
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .data-table tbody tr::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, #4A90E2, #7ED321);
+        transform: scaleY(0);
+        transition: transform 0.3s ease;
+    }
+
+    .data-table tbody tr:hover::before {
+        transform: scaleY(1);
+    }
+
+    .data-table tbody tr:hover {
+        background: linear-gradient(90deg, rgba(74, 144, 226, 0.03), transparent);
+        transform: translateX(8px);
+    }
+
+    .data-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .url-cell {
+        max-width: 400px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+    }
+
+    .confidence-cell {
+        font-weight: 500;
+        font-size: 15px;
+    }
+
+    .time-cell {
+        color: var(--text-secondary);
+        font-size: 13px;
+    }
+
+    /* Enhanced badges */
+    .badge {
+        display: inline-block;
+        padding: 8px 16px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+    }
+
+    .badge.success {
+        color: #059669;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
+
+    .badge.success:hover {
+        background: rgba(16, 185, 129, 0.15);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+        transform: scale(1.05);
+    }
+
+    .badge.danger {
+        color: #dc2626;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    }
+
+    .badge.danger:hover {
+        background: rgba(239, 68, 68, 0.15);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+        transform: scale(1.05);
+    }
+
+    /* Responsive design */
+    @media (max-width: 1200px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 48px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .detection-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stat-number {
+            font-size: 48px;
+        }
+
+        .detection-number {
+            font-size: 56px;
+        }
+
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .section-header h2::before {
+            display: none;
+        }
+
+        .data-table thead th,
+        .data-table tbody td {
+            padding: 16px;
+        }
+    }
+</style>
+
+<!-- Background Elements -->
+<div class="dashboard-bg-gradient"></div>
+<div class="particle particle-1"></div>
+<div class="particle particle-2"></div>
+<div class="particle particle-3"></div>
+<div class="particle particle-4"></div>
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1>Dashboard</h1>
+                <p>Real-time threat intelligence and performance metrics</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    {% if stats %}
+    <div class="stats-grid">
+        <div class="stat-card">
+            <i class="fas fa-bullseye stat-icon"></i>
+            <div class="stat-label">Accuracy</div>
+            <div class="stat-number">{{ stats.accuracy }}%</div>
+            <div class="stat-description">Overall prediction success rate</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-crosshairs stat-icon"></i>
+            <div class="stat-label">Precision</div>
+            <div class="stat-number">{{ stats.precision }}%</div>
+            <div class="stat-description">True positive identification</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-radar stat-icon"></i>
+            <div class="stat-label">Recall</div>
+            <div class="stat-number">{{ stats.recall }}%</div>
+            <div class="stat-description">Threat detection coverage</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-balance-scale stat-icon"></i>
+            <div class="stat-label">F1-Score</div>
+            <div class="stat-number">{{ stats.f1_score }}%</div>
+            <div class="stat-description">Balanced performance metric</div>
+        </div>
+    </div>
+
+    <!-- Detection Stats -->
+    <div class="detection-grid">
+        <div class="detection-card">
+            <div class="detection-header">
+                <h3>Legitimate Detection</h3>
+            </div>
+            <div class="detection-body">
+                <div class="detection-number success">{{ stats.legitimate_accuracy }}%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill success" style="width: {{ stats.legitimate_accuracy }}%"></div>
+                </div>
+                <p>Accuracy in identifying safe URLs with high confidence</p>
+            </div>
+        </div>
+        <div class="detection-card">
+            <div class="detection-header">
+                <h3>Phishing Detection</h3>
+            </div>
+            <div class="detection-body">
+                <div class="detection-number danger">{{ stats.phishing_accuracy }}%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill danger" style="width: {{ stats.phishing_accuracy }}%"></div>
+                </div>
+                <p>Accuracy in detecting malicious URLs and threat patterns</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recent Scans -->
+    {% if history %}
+    <div class="section-header">
+        <h2>Recent Scans</h2>
+        <a href="{{ url_for('history') }}" class="link-button">View All â†’</a>
+    </div>
+
+    <div class="table-card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>URL</th>
+                    <th>Status</th>
+                    <th>Confidence</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in history|reverse|slice(0, 10) %}
+                <tr>
+                    <td class="url-cell">{{ item.url }}</td>
+                    <td>
+                        {% if item.prediction_class == 'success' %}
+                        <span class="badge success">Legitimate</span>
+                        {% else %}
+                        <span class="badge danger">Phishing</span>
+                        {% endif %}
+                    </td>
+                    <td class="confidence-cell">{{ item.confidence }}</td>
+                    <td class="time-cell">{{ item.timestamp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

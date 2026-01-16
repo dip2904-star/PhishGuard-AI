@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishGuard AI - {% block title %}Dashboard{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #fafafa;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --border: #e5e5e5;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 20px clamp(16px, 5vw, 48px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-size: clamp(16px, 3vw, 20px);
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .logo:hover {
+            opacity: 0.6;
+        }
+
+        /* Mobile hamburger - hidden on desktop */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 8px;
+            z-index: 1002;
+        }
+
+        /* Desktop Navigation */
+        .nav-links {
+            display: flex;
+            gap: clamp(16px, 3vw, 40px);
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: clamp(12px, 2vw, 14px);
+            font-weight: 400;
+            transition: color 0.3s ease;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text-primary);
+        }
+
+        /* Profile Menu - Desktop */
+        .profile-menu {
+            position: relative;
+        }
+
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 14px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .profile-trigger:hover {
+            border-color: var(--text-primary);
+            background: var(--bg-secondary);
+        }
+
+        .profile-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4A90E2, #7B68EE);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .profile-name {
+            font-size: clamp(12px, 2vw, 14px);
+            font-weight: 400;
+            color: var(--text-primary);
+        }
+
+        .profile-chevron {
+            font-size: 11px;
+            color: var(--text-secondary);
+            transition: transform 0.3s ease;
+        }
+
+        .profile-menu.active .profile-chevron {
+            transform: rotate(180deg);
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            min-width: 240px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1001;
+        }
+
+        .profile-menu.active .profile-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .profile-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .profile-header-name {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .profile-header-email {
+            font-size: 13px;
+            color: var(--text-secondary);
+            word-break: break-word;
+        }
+
+        .profile-menu-items {
+            padding: 8px 0;
+        }
+
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            background: none;
+            border-right: none;
+            border-top: none;
+            border-bottom: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .profile-menu-item:hover {
+            background: var(--bg-secondary);
+            border-left-color: #4A90E2;
+        }
+
+        .profile-menu-item i {
+            width: 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .profile-menu-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 8px 0;
+        }
+
+        .profile-menu-item.logout {
+            color: #ef4444;
+        }
+
+        .profile-menu-item.logout:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-left-color: #ef4444;
+        }
+
+        .profile-menu-item.logout i {
+            color: #ef4444;
+        }
+
+        /* Page Container */
+        .page-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: clamp(100px, 15vh, 120px) clamp(16px, 5vw, 48px) clamp(60px, 10vh, 80px);
+        }
+
+        /* ============================================
+           MOBILE RESPONSIVE STYLES
+           ============================================ */
+        @media (max-width: 768px) {
+            nav {
+                padding: 16px 20px;
+            }
+
+            /* Show hamburger menu */
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            /* Nav links at top */
+            .nav-links {
+                position: fixed;
+                top: 65px;
+                left: 0;
+                right: 0;
+                flex-direction: column;
+                gap: 0;
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                border-bottom: 1px solid var(--border);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+                padding-bottom: 15px;
+                max-height: 0;
+                overflow: visible;
+                opacity: 0;
+                transition: all 0.3s ease;
+            }
+
+            .nav-links.active {
+                max-height: 350px;
+                opacity: 1;
+            }
+
+            .nav-links a {
+                width: 100%;
+                padding: 12px 0;
+                border-bottom: 1px solid var(--border);
+                font-size: 14px;
+            }
+
+            .nav-links a:last-child {
+                border-bottom: none;
+            }
+
+            /* Profile Menu in Mobile - Appears at bottom */
+            .profile-menu {
+                position: static;
+                width: 100%;
+                margin-top: 10px;
+                padding-top: 10px;
+                border-top: 2px solid var(--border);
+                margin-bottom: 0;
+            }
+
+            .profile-trigger {
+                width: auto;
+                justify-content: flex-start;
+            }
+
+            .profile-dropdown {
+                position: absolute;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+                border: 1px solid var(--border);
+                margin-top: 8px;
+                padding: 0;
+                margin-bottom: 0;
+                background: var(--bg-primary);
+                left: 20px;
+                right: auto;
+                min-width: 240px;
+            }
+
+            .profile-menu.active .profile-dropdown {
+                transform: translateY(0);
+            }
+
+            .profile-menu-items {
+                padding: 8px 0;
+            }
+
+            .page-container {
+                padding-top: 80px;
+            }
+        }
+
+        /* VERY SMALL SCREENS */
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 15px;
+            }
+
+            .profile-avatar {
+                width: 24px;
+                height: 24px;
+                font-size: 11px;
+            }
+
+            .profile-trigger {
+                padding: 6px 12px;
+                gap: 8px;
+            }
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 48px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .page-header h1 {
+            font-size: clamp(36px, 6vw, 56px);
+            font-weight: 300;
+            line-height: 1.1;
+            margin-bottom: 12px;
+            letter-spacing: -2px;
+        }
+
+        .page-header p {
+            font-size: clamp(14px, 2.5vw, 16px);
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+            gap: 20px;
+            margin-bottom: 48px;
+        }
+
+        .stat-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            padding: clamp(24px, 4vw, 32px);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .stat-label {
+            font-size: clamp(10px, 1.8vw, 12px);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .stat-number {
+            font-size: clamp(36px, 6vw, 48px);
+            font-weight: 300;
+            line-height: 1;
+            margin-bottom: 12px;
+            letter-spacing: -2px;
+        }
+
+        .stat-description {
+            font-size: clamp(12px, 2vw, 13px);
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        /* Detection Grid */
+        .detection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+            gap: 20px;
+            margin-bottom: 48px;
+        }
+
+        .detection-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            padding: clamp(32px, 5vw, 40px);
+        }
+
+        .detection-header h3 {
+            font-size: clamp(20px, 3.5vw, 24px);
+            font-weight: 400;
+            margin-bottom: 24px;
+            letter-spacing: -0.5px;
+        }
+
+        .detection-number {
+            font-size: clamp(48px, 8vw, 64px);
+            font-weight: 300;
+            line-height: 1;
+            margin-bottom: 20px;
+            letter-spacing: -3px;
+        }
+
+        .detection-number.success {
+            color: var(--success);
+        }
+
+        .detection-number.danger {
+            color: var(--danger);
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--border);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 1s ease;
+        }
+
+        .progress-fill.success {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+
+        .progress-fill.danger {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+
+        .detection-body p {
+            font-size: clamp(13px, 2.2vw, 14px);
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        /* Section Header */
+        .section-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .section-header h2 {
+            font-size: clamp(24px, 4vw, 32px);
+            font-weight: 400;
+            letter-spacing: -1px;
+        }
+
+        .link-button {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: clamp(12px, 2vw, 14px);
+            font-weight: 400;
+            transition: color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .link-button:hover {
+            color: var(--text-primary);
+        }
+
+        /* Table */
+        .table-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+        }
+
+        /* Scroll indicator for mobile */
+        .table-card::after {
+            content: '→';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(to left, var(--bg-primary) 60%, transparent);
+            padding: 20px 15px;
+            font-size: 20px;
+            color: var(--text-secondary);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .table-card::after {
+                opacity: 1;
+            }
+            
+            .table-card::-webkit-scrollbar {
+                height: 6px;
+            }
+            
+            .table-card::-webkit-scrollbar-track {
+                background: var(--bg-secondary);
+            }
+            
+            .table-card::-webkit-scrollbar-thumb {
+                background: var(--border);
+                border-radius: 3px;
+            }
+            
+            .table-card::-webkit-scrollbar-thumb:hover {
+                background: var(--text-secondary);
+            }
+        }
+
+        .data-table {
+            width: 100%;
+            min-width: 600px;
+            border-collapse: collapse;
+        }
+
+        .data-table thead th {
+            text-align: left;
+            padding: clamp(16px, 3vw, 24px) clamp(16px, 3vw, 32px);
+            font-size: clamp(10px, 1.8vw, 12px);
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+        }
+
+        .data-table tbody td {
+            padding: clamp(16px, 3vw, 24px) clamp(16px, 3vw, 32px);
+            font-size: clamp(12px, 2vw, 14px);
+            font-weight: 300;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .url-cell {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .confidence-cell {
+            font-weight: 400;
+        }
+
+        .time-cell {
+            color: var(--text-secondary);
+            font-size: clamp(11px, 1.8vw, 13px);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            font-size: clamp(10px, 1.8vw, 12px);
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            border: 1px solid;
+        }
+
+        .badge.success {
+            color: var(--success);
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .badge.danger {
+            color: var(--danger);
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        @media (max-width: 480px) {
+            .data-table {
+                min-width: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="{{ url_for('dashboard') }}" class="logo">PhishGuard AI</a>
+        
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <div class="nav-links" id="navLinks">
+            <a href="{{ url_for('dashboard') }}" {% if request.endpoint == 'dashboard' %}class="active"{% endif %}>Dashboard</a>
+            <a href="{{ url_for('predict') }}" {% if request.endpoint == 'predict' %}class="active"{% endif %}>Scanner</a>
+            <a href="{{ url_for('stats') }}" {% if request.endpoint == 'stats' %}class="active"{% endif %}>Stats</a>
+            <a href="{{ url_for('history') }}" {% if request.endpoint == 'history' %}class="active"{% endif %}>History</a>
+            <a href="{{ url_for('about') }}" {% if request.endpoint == 'about' %}class="active"{% endif %}>About</a>
+            
+            <!-- Profile Menu - Inside nav-links on mobile, outside on desktop -->
+            <div class="profile-menu" id="profileMenu">
+                <button class="profile-trigger" onclick="toggleProfileMenu(event)">
+                    <div class="profile-avatar">
+                        {{ session.username[0].upper() if session.username else 'U' }}
+                    </div>
+                    <span class="profile-name">{{ session.username }}</span>
+                    <i class="fas fa-chevron-down profile-chevron"></i>
+                </button>
+                
+                <div class="profile-dropdown">
+                    <div class="profile-header">
+                        <div class="profile-header-name">{{ session.username }}</div>
+                        <div class="profile-header-email">{{ session.email if session.email else 'No email set' }}</div>
+                    </div>
+                    
+                    <div class="profile-menu-items">
+                        <a href="#" class="profile-menu-item" onclick="showAccountActivity(); return false;">
+                            <i class="fas fa-clock"></i>
+                            <span>Account Activity</span>
+                        </a>
+                        
+                        <div class="profile-menu-divider"></div>
+                        
+                        <a href="{{ url_for('logout') }}" class="profile-menu-item logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    {% block content %}{% endblock %}
+
+    <script>
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const navLinks = document.getElementById('navLinks');
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            navLinks.classList.toggle('active');
+            
+            // Change icon
+            const icon = menuToggle.querySelector('i');
+            if (navLinks.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        }
+
+        // Profile menu functionality
+        function toggleProfileMenu(event) {
+            event.stopPropagation();
+            const profileMenu = document.getElementById('profileMenu');
+            profileMenu.classList.toggle('active');
+        }
+
+        // Close menus when clicking outside
+        document.addEventListener('click', (event) => {
+            const profileMenu = document.getElementById('profileMenu');
+            const navLinks = document.getElementById('navLinks');
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            
+            // Close profile menu if clicking outside
+            if (profileMenu && !profileMenu.contains(event.target)) {
+                profileMenu.classList.remove('active');
+            }
+            
+            // Close mobile menu if clicking outside
+            if (navLinks && !navLinks.contains(event.target) && !menuToggle.contains(event.target)) {
+                navLinks.classList.remove('active');
+                const icon = menuToggle.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        });
+
+        // Close menus on escape key
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                const profileMenu = document.getElementById('profileMenu');
+                const navLinks = document.getElementById('navLinks');
+                const menuToggle = document.querySelector('.mobile-menu-toggle');
+                
+                if (profileMenu) {
+                    profileMenu.classList.remove('active');
+                }
+                if (navLinks && navLinks.classList.contains('active')) {
+                    navLinks.classList.remove('active');
+                    const icon = menuToggle.querySelector('i');
+                    if (icon) {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
+            }
+        });
+
+        // Account Activity
+        function showAccountActivity() {
+            const profileMenu = document.getElementById('profileMenu');
+            profileMenu.classList.remove('active');
+            
+            const loginTime = "{{ session.login_time if session.login_time else 'N/A' }}";
+            const username = "{{ session.username }}";
+            
+            alert(`Account Activity for ${username}\n\n` +
+                  `Last Login: ${loginTime}\n` +
+                  `Email: {{ session.email if session.email else 'Not set' }}\n` +
+                  `Account Created: {{ users[session.username].created_at if users and session.username in users else 'Unknown' }}`);
+        }
+
+        // Animate progress bars
+        document.addEventListener('DOMContentLoaded', () => {
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 200);
+            });
+        });
+    </script>
+
+</body>
+</html>
