@@ -15,7 +15,37 @@ import re
 from urllib.parse import urlparse
 from werkzeug.security import generate_password_hash, check_password_hash
 
+
+# Add this section after all your imports (around line 14)
+
+import requests
+
+# Google Drive Model Download
+MODEL_URL = "https://drive.google.com/uc?export=download&id=1RF-t3WQQobj8WwX2aEUI27zFWy3k0Cpi"
+MODEL_PATH = "phishing_detection_model_random_forest.pkl"
+
+def download_model():
+    """Download model from Google Drive if not present"""
+    if not os.path.exists(MODEL_PATH):
+        print(f"[*] Model not found locally. Downloading from Google Drive...")
+        try:
+            response = requests.get(MODEL_URL, allow_redirects=True)
+            response.raise_for_status()
+            with open(MODEL_PATH, 'wb') as f:
+                f.write(response.content)
+            print(f"[+] Model downloaded successfully to {MODEL_PATH}")
+            return True
+        except Exception as e:
+            print(f"[-] Error downloading model: {e}")
+            return False
+    else:
+        print(f"[+] Model found locally at {MODEL_PATH}")
+        return True
+
+# Download model before initializing detector
+download_model()
 # Import your feature extraction function
+
 def extract_features_single(url):
     """Extract features from a single URL"""
     features = {}

@@ -2,3 +2,4 @@ users.json
 *.csv 
 __pycache__/ 
 *.pyc
+*.pkl 
