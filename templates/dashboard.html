@@ -779,6 +779,7 @@
                 </tr>
             </thead>
             <tbody>
+                {% for item in history[:10]|reverse %}
                 <tr>
                     <td class="url-cell">{{ item.url }}</td>
                     <td>
