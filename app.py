@@ -22,18 +22,40 @@ MODEL_URL = "https://www.dropbox.com/scl/fi/0vjcqd9rdeytztf1lvw47/phishing_detec
 MODEL_PATH = "phishing_detection_model_random_forest.pkl"
 
 def download_model():
-    """Download model from Google Drive if not present"""
+    """Download model from Dropbox if not present"""
     if not os.path.exists(MODEL_PATH):
-        print(f"[*] Model not found locally. Downloading from Google Drive...")
+        print(f"[*] Model not found locally. Downloading from Dropbox...")
         try:
-            response = requests.get(MODEL_URL, allow_redirects=True)
+            response = requests.get(MODEL_URL, stream=True, timeout=300)
             response.raise_for_status()
+            
+            # Get total file size
+            total_size = int(response.headers.get('content-length', 0))
+            
+            # Download in chunks with progress
             with open(MODEL_PATH, 'wb') as f:
-                f.write(response.content)
+                downloaded = 0
+                chunk_size = 1024 * 1024  # 1MB chunks
+                for chunk in response.iter_content(chunk_size=chunk_size):
+                    if chunk:
+                        f.write(chunk)
+                        downloaded += len(chunk)
+                        if total_size > 0:
+                            percent = (downloaded / total_size) * 100
+                            print(f"[*] Downloaded {downloaded}/{total_size} bytes ({percent:.1f}%)")
+            
             print(f"[+] Model downloaded successfully to {MODEL_PATH}")
+            
+            # Verify file size
+            file_size = os.path.getsize(MODEL_PATH)
+            print(f"[+] Model file size: {file_size} bytes")
+            
             return True
         except Exception as e:
             print(f"[-] Error downloading model: {e}")
+            # Remove incomplete file
+            if os.path.exists(MODEL_PATH):
+                os.remove(MODEL_PATH)
             return False
     else:
         print(f"[+] Model found locally at {MODEL_PATH}")
