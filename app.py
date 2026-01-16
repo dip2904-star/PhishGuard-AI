@@ -1,6 +1,6 @@
 """
 Flask Web Application for Phishing Detection
-Integrates with your trained Random Forest model (.pkl file)
+Integrates with your trained Random Forest model (compressed .pkl file)
 Now with PostgreSQL database support and robust model loading
 """
 
@@ -25,10 +25,10 @@ except ImportError:
     import pickle
     USE_JOBLIB = False
 
-# Dropbox Model Download
-MODEL_URL = "https://www.dropbox.com/scl/fi/4dt4ye14go64aqxo4u4a2/phishing_detection_model_random_forest.pkl?rlkey=wtyg92ulkm40se3rc5s25btch&st=0v1jo4e5&dl=1"
-MODEL_PATH = "phishing_detection_model_random_forest.pkl"
-EXPECTED_SIZE = 80505245  # Known file size
+# Dropbox Model Download - UPDATED FOR COMPRESSED MODEL
+MODEL_URL = "https://www.dropbox.com/scl/fi/hl8otmdsqzhcnfb4pm563/phishing_detection_model_random_forest_compressed.pkl?rlkey=lv7rlzpl79aloxyqu55ynydrn&st=l25b8it5&dl=1"
+MODEL_PATH = "phishing_detection_model_random_forest_compressed.pkl"
+EXPECTED_SIZE = 155751929  # Updated: 155.75 MB compressed size
 CHUNK_SIZE = 8192  # 8KB chunks for reliable download
 
 def calculate_md5(filepath):
@@ -43,22 +43,22 @@ def calculate_md5(filepath):
         return None
 
 def download_model():
-    """Download model from Dropbox if not present - with robust error handling"""
+    """Download compressed model from Dropbox if not present - with robust error handling"""
     if os.path.exists(MODEL_PATH):
         file_size = os.path.getsize(MODEL_PATH)
         print(f"[+] Model found locally at {MODEL_PATH}")
-        print(f"[+] Model file size: {file_size} bytes")
+        print(f"[+] Model file size: {file_size} bytes ({file_size/(1024*1024):.2f} MB)")
         
         # Verify file size matches expected
         if file_size == EXPECTED_SIZE:
-            print("[+] File size verified - model appears complete")
+            print("[+] File size verified - compressed model appears complete")
             return True
         else:
             print(f"[!] File size mismatch! Expected {EXPECTED_SIZE}, got {file_size}")
-            print("[*] Re-downloading model...")
+            print("[*] Re-downloading compressed model...")
             os.remove(MODEL_PATH)
     
-    print(f"[*] Downloading model from Dropbox...")
+    print(f"[*] Downloading compressed model from Dropbox...")
     temp_path = MODEL_PATH + ".tmp"
     
     try:
@@ -95,7 +95,7 @@ def download_model():
         
         # Verify downloaded file
         final_size = os.path.getsize(temp_path)
-        print(f"[+] Download complete: {final_size} bytes")
+        print(f"[+] Download complete: {final_size} bytes ({final_size/(1024*1024):.2f} MB)")
         
         if final_size != total_size:
             print(f"[-] ERROR: Downloaded size ({final_size}) doesn't match expected ({total_size})")
@@ -107,7 +107,7 @@ def download_model():
             os.remove(MODEL_PATH)
         os.rename(temp_path, MODEL_PATH)
         
-        print(f"[+] Model saved successfully to {MODEL_PATH}")
+        print(f"[+] Compressed model saved successfully to {MODEL_PATH}")
         print(f"[+] MD5: {calculate_md5(MODEL_PATH)}")
         return True
         
@@ -128,7 +128,7 @@ def download_model():
 
 # Download model before initializing detector
 print("\n" + "="*60)
-print("INITIALIZING PHISHING DETECTOR")
+print("INITIALIZING PHISHING DETECTOR (COMPRESSED MODEL)")
 print("="*60)
 download_success = download_model()
 
@@ -218,9 +218,9 @@ def extract_features_single(url):
     return features
 
 class PhishingDetector:
-    """Class to load and use your trained model"""
+    """Class to load and use your trained compressed model"""
     
-    def __init__(self, model_path='phishing_detection_model_random_forest.pkl'):
+    def __init__(self, model_path='phishing_detection_model_random_forest_compressed.pkl'):
         self.model = None
         self.model_loaded = False
         self.feature_order = [
@@ -239,7 +239,7 @@ class PhishingDetector:
             return
         
         file_size = os.path.getsize(model_path)
-        print(f"[*] Loading model from {model_path} ({file_size} bytes)...")
+        print(f"[*] Loading compressed model from {model_path} ({file_size/(1024*1024):.2f} MB)...")
         
         # Try multiple loading strategies
         load_methods = []
@@ -255,7 +255,7 @@ class PhishingDetector:
                 print(f"[*] Attempting to load with {method_name}...")
                 self.model = load_func()
                 self.model_loaded = True
-                print(f"[+] SUCCESS! Model loaded with {method_name}")
+                print(f"[+] SUCCESS! Compressed model loaded with {method_name}")
                 print(f"[+] Model type: {type(self.model)}")
                 
                 # Verify model has predict method
@@ -386,8 +386,8 @@ with app.app_context():
         db.session.commit()
         print("[+] Default admin user created")
 
-# Initialize detector
-detector = PhishingDetector('phishing_detection_model_random_forest.pkl')
+# Initialize detector with compressed model
+detector = PhishingDetector('phishing_detection_model_random_forest_compressed.pkl')
 
 def get_user_history(username):
     """Get prediction history from database"""
@@ -630,11 +630,11 @@ def stats():
 
 if __name__ == '__main__':
     print("\n" + "="*60)
-    print("PHISHING DETECTION WEB APPLICATION")
+    print("PHISHING DETECTION WEB APPLICATION (COMPRESSED MODEL)")
     print("="*60)
     print(f"Model loaded: {detector.model_loaded}")
     if detector.model_loaded:
-        print("[+] Ready to detect phishing URLs!")
+        print("[+] Ready to detect phishing URLs with compressed model!")
     else:
         print("[-] Model not loaded - check logs above")
     print(f"\nDatabase: {app.config['SQLALCHEMY_DATABASE_URI']}")
