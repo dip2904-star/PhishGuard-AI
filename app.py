@@ -26,7 +26,7 @@ except ImportError:
     USE_JOBLIB = False
 
 # Dropbox Model Download - UPDATED FOR COMPRESSED MODEL
-MODEL_URL = "https://www.dropbox.com/scl/fi/hl8otmdsqzhcnfb4pm563/phishing_detection_model_random_forest_compressed.pkl?rlkey=lv7rlzpl79aloxyqu55ynydrn&st=l25b8it5&dl=1"
+MODEL_URL = "https://www.dropbox.com/scl/fi/lxt23i4b004jncrovw5yb/phishing_detection_model_random_forest_pruned_30trees.pkl?rlkey=ty910h61r2pugctq8wsl1n7rh&st=ybweryry&dl=1"
 MODEL_PATH = "phishing_detection_model_random_forest_compressed.pkl"
 EXPECTED_SIZE = 155751929  # Updated: 155.75 MB compressed size
 CHUNK_SIZE = 8192  # 8KB chunks for reliable download
