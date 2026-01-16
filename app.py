@@ -17,8 +17,8 @@ import re
 from urllib.parse import urlparse
 from werkzeug.security import generate_password_hash, check_password_hash
 
-# Google Drive Model Download
-MODEL_URL = "https://drive.google.com/uc?export=download&id=1RF-t3WQQobj8WwX2aEUI27zFWy3k0Cpi"
+# Dropbox Model Download
+MODEL_URL = "https://www.dropbox.com/scl/fi/0vjcqd9rdeytztf1lvw47/phishing_detection_model_random_forest.pkl?rlkey=1itmsh5cy2k5x08j28v8q8huv&st=a3bjtji7&dl=1"
 MODEL_PATH = "phishing_detection_model_random_forest.pkl"
 
 def download_model():
