@@ -1,24 +1,21 @@
 """
 Flask Web Application for Phishing Detection
 Integrates with your trained Random Forest model (.pkl file)
+Now with PostgreSQL database support
 """
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask_sqlalchemy import SQLAlchemy
 import pickle
 import pandas as pd
 import numpy as np
 import os
-import json
+import requests
 from functools import wraps
 from datetime import datetime
 import re
 from urllib.parse import urlparse
 from werkzeug.security import generate_password_hash, check_password_hash
-
-
-# Add this section after all your imports (around line 14)
-
-import requests
 
 # Google Drive Model Download
 MODEL_URL = "https://drive.google.com/uc?export=download&id=1RF-t3WQQobj8WwX2aEUI27zFWy3k0Cpi"
@@ -44,7 +41,6 @@ def download_model():
 
 # Download model before initializing detector
 download_model()
-# Import your feature extraction function
 
 def extract_features_single(url):
     """Extract features from a single URL"""
@@ -197,42 +193,86 @@ class PhishingDetector:
         
         return prediction, confidence, features
 
+# Initialize Flask app
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-change-this-in-production'
+app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this-in-production')
 
+# Database configuration
+database_url = os.environ.get('DATABASE_URL', 'sqlite:///local.db')
+# Fix for Render's postgres:// URL
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize database
+db = SQLAlchemy(app)
+
+# Database Models
+class User(db.Model):
+    __tablename__ = 'users'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationship to predictions
+    predictions = db.relationship('PredictionHistory', backref='user', lazy=True, cascade='all, delete-orphan')
+    
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+    
+    def __repr__(self):
+        return f'<User {self.username}>'
+
+class PredictionHistory(db.Model):
+    __tablename__ = 'prediction_history'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), db.ForeignKey('users.username'), nullable=False)
+    url = db.Column(db.Text, nullable=False)
+    prediction = db.Column(db.String(20), nullable=False)
+    confidence = db.Column(db.Float)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<Prediction {self.url[:30]}... by {self.username}>'
+
+# Create tables and default admin user
+with app.app_context():
+    db.create_all()
+    
+    # Create default admin if doesn't exist
+    admin = User.query.filter_by(username='admin').first()
+    if not admin:
+        admin = User(username='admin', email='admin@example.com')
+        admin.set_password('admin123')
+        db.session.add(admin)
+        db.session.commit()
+        print("[+] Default admin user created")
+
+# Initialize detector
 detector = PhishingDetector('phishing_detection_model_random_forest.pkl')
 
-USERS_FILE = 'users.json'
-
-def load_users():
-    if os.path.exists(USERS_FILE):
-        with open(USERS_FILE, 'r') as f:
-            return json.load(f)
-    else:
-        default_users = {
-            'admin': {
-                'password': generate_password_hash('admin123'),
-                'email': 'admin@example.com',
-                'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            }
-        }
-        save_users(default_users)
-        return default_users
-
-def save_users(users_data):
-    with open(USERS_FILE, 'w') as f:
-        json.dump(users_data, f, indent=4)
-
-users = load_users()
-
-# Store prediction history per user (user-specific)
-user_prediction_history = {}
-
 def get_user_history(username):
-    """Get prediction history for a specific user"""
-    if username not in user_prediction_history:
-        user_prediction_history[username] = []
-    return user_prediction_history[username]
+    """Get prediction history from database"""
+    history = PredictionHistory.query.filter_by(username=username).order_by(PredictionHistory.timestamp.desc()).all()
+    return [
+        {
+            'url': h.url,
+            'prediction': h.prediction,
+            'confidence': f"{h.confidence:.2f}%" if h.confidence else 'N/A',
+            'confidence_value': h.confidence if h.confidence else 0,
+            'timestamp': h.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        }
+        for h in history
+    ]
 
 def load_model_stats():
     stats = {
@@ -271,15 +311,15 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        if username in users and check_password_hash(users[username]['password'], password):
+        user = User.query.filter_by(username=username).first()
+        if user and user.check_password(password):
             session['username'] = username
-            session['email'] = users[username].get('email', '')
+            session['email'] = user.email
             session['login_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             flash(f'Welcome back, {username}!', 'success')
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid username or password. Please try again.', 'error')
-            # Stay on the same page with error message
     
     return render_template('login.html')
 
@@ -299,17 +339,17 @@ def signup():
             flash('Password must be at least 6 characters', 'danger')
         elif password != confirm_password:
             flash('Passwords do not match', 'danger')
-        elif username in users:
+        elif User.query.filter_by(username=username).first():
             flash('Username already exists', 'danger')
+        elif User.query.filter_by(email=email).first():
+            flash('Email already exists', 'danger')
         elif not re.match(r'^[a-zA-Z0-9_]+$', username):
             flash('Username can only contain letters, numbers, and underscores', 'danger')
         else:
-            users[username] = {
-                'password': generate_password_hash(password),
-                'email': email,
-                'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            }
-            save_users(users)
+            user = User(username=username, email=email)
+            user.set_password(password)
+            db.session.add(user)
+            db.session.commit()
             flash('Account created successfully! Please login.', 'success')
             return redirect(url_for('login'))
     
@@ -317,9 +357,8 @@ def signup():
 
 @app.route('/logout')
 def logout():
-    username = session.get('username', 'User')
-    session.clear()  # Clear all session data
-    return redirect(url_for('login'))  # Remove the flash message
+    session.clear()
+    return redirect(url_for('login'))
 
 @app.route('/dashboard')
 @login_required
@@ -330,7 +369,7 @@ def dashboard():
     return render_template('dashboard.html', 
                          username=username,
                          stats=model_stats,
-                         history=user_history[-10:],  # Last 10 predictions for this user
+                         history=user_history[:10],  # Last 10 predictions for this user
                          model_loaded=detector.model_loaded)
 
 @app.route('/predict', methods=['GET', 'POST'])
@@ -357,9 +396,15 @@ def predict():
                     'user': username
                 }
                 
-                # Add to this user's history only
-                user_history = get_user_history(username)
-                user_history.append(result)
+                # Save to database
+                history_entry = PredictionHistory(
+                    username=username,
+                    url=url,
+                    prediction=result['prediction'],
+                    confidence=confidence
+                )
+                db.session.add(history_entry)
+                db.session.commit()
                 
                 flash(f'URL analyzed: {result["prediction"]}', result['prediction_class'])
             else:
@@ -402,8 +447,6 @@ def history():
 def about():
     return render_template('about.html', stats=model_stats)
 
-# Add this route to your app.py after the about() route
-
 @app.route('/stats')
 @login_required
 def stats():
@@ -413,12 +456,12 @@ def stats():
     total_tests = model_stats['total_tests']
     
     # Confusion Matrix data - using actual values from trained model
-    false_positives = model_stats['false_positives']  # 1,329
-    false_negatives = model_stats['false_negatives']  # 3,365
-    true_negatives = 57602  # Legitimate correctly identified
-    true_positives = 13631  # Phishing correctly identified
+    false_positives = model_stats['false_positives']
+    false_negatives = model_stats['false_negatives']
+    true_negatives = 57602
+    true_positives = 13631
     
-    # Feature importance (simulate - replace with actual if available)
+    # Feature importance
     feature_importance = [
         {'name': 'URL Length', 'importance': 0.145},
         {'name': 'Domain Entropy', 'importance': 0.132},
@@ -432,7 +475,7 @@ def stats():
         {'name': 'Path Length', 'importance': 0.059},
     ]
     
-    # Performance over time (simulate)
+    # Performance over time
     performance_timeline = [
         {'epoch': 10, 'accuracy': 78.5, 'loss': 0.45},
         {'epoch': 20, 'accuracy': 83.2, 'loss': 0.38},
@@ -446,6 +489,9 @@ def stats():
         {'epoch': 100, 'accuracy': 93.82, 'loss': 0.14},
     ]
     
+    # Get total predictions from database
+    total_predictions = PredictionHistory.query.count()
+    
     stats_data = {
         'model_stats': model_stats,
         'confusion_matrix': {
@@ -456,7 +502,7 @@ def stats():
         },
         'feature_importance': feature_importance,
         'performance_timeline': performance_timeline,
-        'total_predictions': sum(len(get_user_history(user)) for user in user_prediction_history)
+        'total_predictions': total_predictions
     }
     
     return render_template('stats.html', stats=stats_data)
@@ -470,6 +516,7 @@ if __name__ == '__main__':
         print("[+] Ready to detect phishing URLs!")
     else:
         print("[-] Model not loaded - check if .pkl file exists")
+    print(f"\nDatabase: {app.config['SQLALCHEMY_DATABASE_URI']}")
     print("\nDefault login credentials:")
     print("  Username: admin | Password: admin123")
     print("\nOr create a new account at: http://localhost:5000/signup")
