@@ -1,12 +1,12 @@
 """
 Flask Web Application for Phishing Detection
 Integrates with your trained Random Forest model (.pkl file)
-Now with PostgreSQL database support
+Now with PostgreSQL database support and Joblib for better model loading
 """
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
-import pickle
+import joblib  # Changed from pickle to joblib
 import pandas as pd
 import numpy as np
 import os
@@ -35,20 +35,28 @@ def download_model():
             # Download in chunks with progress
             with open(MODEL_PATH, 'wb') as f:
                 downloaded = 0
-                chunk_size = 1024 * 1024  # 1MB chunks
+                chunk_size = 8192  # Smaller chunks for more reliable download
                 for chunk in response.iter_content(chunk_size=chunk_size):
                     if chunk:
                         f.write(chunk)
+                        f.flush()  # Force write to disk
+                        os.fsync(f.fileno())  # Ensure data is written
                         downloaded += len(chunk)
                         if total_size > 0:
                             percent = (downloaded / total_size) * 100
-                            print(f"[*] Downloaded {downloaded}/{total_size} bytes ({percent:.1f}%)")
+                            if downloaded % (1024 * 1024) == 0:  # Print every MB
+                                print(f"[*] Downloaded {downloaded}/{total_size} bytes ({percent:.1f}%)")
             
             print(f"[+] Model downloaded successfully to {MODEL_PATH}")
             
             # Verify file size
             file_size = os.path.getsize(MODEL_PATH)
             print(f"[+] Model file size: {file_size} bytes")
+            
+            if file_size != total_size:
+                print(f"[-] WARNING: File size mismatch! Expected {total_size}, got {file_size}")
+                os.remove(MODEL_PATH)
+                return False
             
             return True
         except Exception as e:
@@ -167,14 +175,17 @@ class PhishingDetector:
         ]
         
         try:
-            with open(model_path, 'rb') as f:
-                self.model = pickle.load(f)
+            print(f"[*] Loading model from {model_path}...")
+            # Use joblib instead of pickle for better handling of large files
+            self.model = joblib.load(model_path)
             self.model_loaded = True
             print(f"[+] Model loaded successfully from {model_path}")
         except FileNotFoundError:
             print(f"[-] Model file not found: {model_path}")
         except Exception as e:
             print(f"[-] Error loading model: {e}")
+            import traceback
+            traceback.print_exc()
     
     def predict(self, url):
         if not self.model_loaded:
@@ -391,7 +402,7 @@ def dashboard():
     return render_template('dashboard.html', 
                          username=username,
                          stats=model_stats,
-                         history=user_history[:10],  # Last 10 predictions for this user
+                         history=user_history[:10],
                          model_loaded=detector.model_loaded)
 
 @app.route('/predict', methods=['GET', 'POST'])
