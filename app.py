@@ -1,12 +1,11 @@
 """
 Flask Web Application for Phishing Detection
 Integrates with your trained Random Forest model (.pkl file)
-Now with PostgreSQL database support and Joblib for better model loading
+Now with PostgreSQL database support and robust model loading
 """
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
-import joblib  # Changed from pickle to joblib
 import pandas as pd
 import numpy as np
 import os
@@ -16,61 +15,122 @@ from datetime import datetime
 import re
 from urllib.parse import urlparse
 from werkzeug.security import generate_password_hash, check_password_hash
+import hashlib
+
+# Try to import both pickle and joblib
+try:
+    import joblib
+    USE_JOBLIB = True
+except ImportError:
+    import pickle
+    USE_JOBLIB = False
 
 # Dropbox Model Download
 MODEL_URL = "https://www.dropbox.com/scl/fi/0vjcqd9rdeytztf1lvw47/phishing_detection_model_random_forest.pkl?rlkey=1itmsh5cy2k5x08j28v8q8huv&st=a3bjtji7&dl=1"
 MODEL_PATH = "phishing_detection_model_random_forest.pkl"
+EXPECTED_SIZE = 80505245  # Known file size
+CHUNK_SIZE = 8192  # 8KB chunks for reliable download
+
+def calculate_md5(filepath):
+    """Calculate MD5 hash of a file"""
+    hash_md5 = hashlib.md5()
+    try:
+        with open(filepath, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+    except:
+        return None
 
 def download_model():
-    """Download model from Dropbox if not present"""
-    if not os.path.exists(MODEL_PATH):
-        print(f"[*] Model not found locally. Downloading from Dropbox...")
-        try:
-            response = requests.get(MODEL_URL, stream=True, timeout=300)
-            response.raise_for_status()
-            
-            # Get total file size
-            total_size = int(response.headers.get('content-length', 0))
-            
-            # Download in chunks with progress
-            with open(MODEL_PATH, 'wb') as f:
-                downloaded = 0
-                chunk_size = 8192  # Smaller chunks for more reliable download
-                for chunk in response.iter_content(chunk_size=chunk_size):
-                    if chunk:
-                        f.write(chunk)
-                        f.flush()  # Force write to disk
-                        os.fsync(f.fileno())  # Ensure data is written
-                        downloaded += len(chunk)
-                        if total_size > 0:
-                            percent = (downloaded / total_size) * 100
-                            if downloaded % (1024 * 1024) == 0:  # Print every MB
-                                print(f"[*] Downloaded {downloaded}/{total_size} bytes ({percent:.1f}%)")
-            
-            print(f"[+] Model downloaded successfully to {MODEL_PATH}")
-            
-            # Verify file size
-            file_size = os.path.getsize(MODEL_PATH)
-            print(f"[+] Model file size: {file_size} bytes")
-            
-            if file_size != total_size:
-                print(f"[-] WARNING: File size mismatch! Expected {total_size}, got {file_size}")
-                os.remove(MODEL_PATH)
-                return False
-            
-            return True
-        except Exception as e:
-            print(f"[-] Error downloading model: {e}")
-            # Remove incomplete file
-            if os.path.exists(MODEL_PATH):
-                os.remove(MODEL_PATH)
-            return False
-    else:
+    """Download model from Dropbox if not present - with robust error handling"""
+    if os.path.exists(MODEL_PATH):
+        file_size = os.path.getsize(MODEL_PATH)
         print(f"[+] Model found locally at {MODEL_PATH}")
+        print(f"[+] Model file size: {file_size} bytes")
+        
+        # Verify file size matches expected
+        if file_size == EXPECTED_SIZE:
+            print("[+] File size verified - model appears complete")
+            return True
+        else:
+            print(f"[!] File size mismatch! Expected {EXPECTED_SIZE}, got {file_size}")
+            print("[*] Re-downloading model...")
+            os.remove(MODEL_PATH)
+    
+    print(f"[*] Downloading model from Dropbox...")
+    temp_path = MODEL_PATH + ".tmp"
+    
+    try:
+        # Use streaming download with timeout
+        response = requests.get(MODEL_URL, stream=True, timeout=600)
+        response.raise_for_status()
+        
+        total_size = int(response.headers.get('content-length', 0))
+        print(f"[*] Total size to download: {total_size} bytes ({total_size / (1024*1024):.2f} MB)")
+        
+        if total_size != EXPECTED_SIZE:
+            print(f"[!] WARNING: Expected size {EXPECTED_SIZE} but server reports {total_size}")
+        
+        downloaded = 0
+        last_percent = 0
+        
+        # Download to temporary file first
+        with open(temp_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
+                if chunk:
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    
+                    # Show progress every 5%
+                    if total_size > 0:
+                        percent = int((downloaded / total_size) * 100)
+                        if percent >= last_percent + 5:
+                            print(f"[*] Progress: {percent}% ({downloaded}/{total_size} bytes)")
+                            last_percent = percent
+            
+            # Ensure all data is written to disk
+            f.flush()
+            os.fsync(f.fileno())
+        
+        # Verify downloaded file
+        final_size = os.path.getsize(temp_path)
+        print(f"[+] Download complete: {final_size} bytes")
+        
+        if final_size != total_size:
+            print(f"[-] ERROR: Downloaded size ({final_size}) doesn't match expected ({total_size})")
+            os.remove(temp_path)
+            return False
+        
+        # Move temp file to final location
+        if os.path.exists(MODEL_PATH):
+            os.remove(MODEL_PATH)
+        os.rename(temp_path, MODEL_PATH)
+        
+        print(f"[+] Model saved successfully to {MODEL_PATH}")
+        print(f"[+] MD5: {calculate_md5(MODEL_PATH)}")
         return True
+        
+    except requests.exceptions.RequestException as e:
+        print(f"[-] Network error downloading model: {e}")
+    except IOError as e:
+        print(f"[-] File I/O error: {e}")
+    except Exception as e:
+        print(f"[-] Unexpected error downloading model: {e}")
+        import traceback
+        traceback.print_exc()
+    
+    # Cleanup on failure
+    if os.path.exists(temp_path):
+        os.remove(temp_path)
+    
+    return False
 
 # Download model before initializing detector
-download_model()
+print("\n" + "="*60)
+print("INITIALIZING PHISHING DETECTOR")
+print("="*60)
+download_success = download_model()
 
 def extract_features_single(url):
     """Extract features from a single URL"""
@@ -174,57 +234,96 @@ class PhishingDetector:
             'special_ratio', 'is_shortened', 'has_double_slash', 'abnormal_url'
         ]
         
-        try:
-            print(f"[*] Loading model from {model_path}...")
-            # Use joblib instead of pickle for better handling of large files
-            self.model = joblib.load(model_path)
-            self.model_loaded = True
-            print(f"[+] Model loaded successfully from {model_path}")
-        except FileNotFoundError:
+        if not os.path.exists(model_path):
             print(f"[-] Model file not found: {model_path}")
-        except Exception as e:
-            print(f"[-] Error loading model: {e}")
-            import traceback
-            traceback.print_exc()
+            return
+        
+        file_size = os.path.getsize(model_path)
+        print(f"[*] Loading model from {model_path} ({file_size} bytes)...")
+        
+        # Try multiple loading strategies
+        load_methods = []
+        
+        if USE_JOBLIB:
+            load_methods.append(("joblib", lambda: joblib.load(model_path)))
+        
+        load_methods.append(("pickle (rb)", lambda: pickle.load(open(model_path, 'rb'))))
+        load_methods.append(("pickle (rb+)", lambda: pickle.load(open(model_path, 'rb+'))))
+        
+        for method_name, load_func in load_methods:
+            try:
+                print(f"[*] Attempting to load with {method_name}...")
+                self.model = load_func()
+                self.model_loaded = True
+                print(f"[+] SUCCESS! Model loaded with {method_name}")
+                print(f"[+] Model type: {type(self.model)}")
+                
+                # Verify model has predict method
+                if hasattr(self.model, 'predict'):
+                    print("[+] Model has predict method - ready to use!")
+                else:
+                    print("[!] WARNING: Model missing predict method")
+                    self.model_loaded = False
+                
+                break
+                
+            except Exception as e:
+                print(f"[-] Failed with {method_name}: {type(e).__name__}: {str(e)[:100]}")
+                continue
+        
+        if not self.model_loaded:
+            print("[-] All loading methods failed!")
+            print("[-] This may indicate:")
+            print("    1. Corrupted download")
+            print("    2. Incompatible pickle protocol")
+            print("    3. Missing dependencies (scikit-learn version mismatch)")
+            print("    4. File system issues on Render")
     
     def predict(self, url):
         if not self.model_loaded:
             return None, None, "Model not loaded"
         
-        url = url.strip().lower()
-        if not url.startswith(('http://', 'https://')):
-            url = 'http://' + url
-        
-        features = extract_features_single(url)
-        features_df = pd.DataFrame([features], columns=self.feature_order)
-        features_df = features_df.fillna(-1)
-        
-        prediction = self.model.predict(features_df)[0]
-        
-        if hasattr(self.model, 'predict_proba'):
-            proba = self.model.predict_proba(features_df)[0]
-            confidence = proba[prediction] * 100
-        else:
-            confidence = None
-        
-        # Whitelist for known legitimate domains
-        known_legitimate = [
-            'google.com', 'youtube.com', 'facebook.com', 'amazon.com', 
-            'wikipedia.org', 'twitter.com', 'instagram.com', 'linkedin.com',
-            'microsoft.com', 'apple.com', 'github.com', 'stackoverflow.com',
-            'reddit.com', 'netflix.com', 'ebay.com', 'walmart.com', 'yahoo.com',
-            'bing.com', 'twitch.tv', 'zoom.us', 'dropbox.com', 'spotify.com'
-        ]
-        
-        if features['path_length'] <= 10 and features['url_length'] < 40:
-            for domain in known_legitimate:
-                if domain in url:
-                    prediction = 0
-                    confidence = 95.0
-                    features['_whitelist_override'] = True
-                    break
-        
-        return prediction, confidence, features
+        try:
+            url = url.strip().lower()
+            if not url.startswith(('http://', 'https://')):
+                url = 'http://' + url
+            
+            features = extract_features_single(url)
+            features_df = pd.DataFrame([features], columns=self.feature_order)
+            features_df = features_df.fillna(-1)
+            
+            prediction = self.model.predict(features_df)[0]
+            
+            if hasattr(self.model, 'predict_proba'):
+                proba = self.model.predict_proba(features_df)[0]
+                confidence = proba[prediction] * 100
+            else:
+                confidence = None
+            
+            # Whitelist for known legitimate domains
+            known_legitimate = [
+                'google.com', 'youtube.com', 'facebook.com', 'amazon.com', 
+                'wikipedia.org', 'twitter.com', 'instagram.com', 'linkedin.com',
+                'microsoft.com', 'apple.com', 'github.com', 'stackoverflow.com',
+                'reddit.com', 'netflix.com', 'ebay.com', 'walmart.com', 'yahoo.com',
+                'bing.com', 'twitch.tv', 'zoom.us', 'dropbox.com', 'spotify.com'
+            ]
+            
+            if features['path_length'] <= 10 and features['url_length'] < 40:
+                for domain in known_legitimate:
+                    if domain in url:
+                        prediction = 0
+                        confidence = 95.0
+                        features['_whitelist_override'] = True
+                        break
+            
+            return prediction, confidence, features
+            
+        except Exception as e:
+            print(f"[-] Prediction error: {e}")
+            import traceback
+            traceback.print_exc()
+            return None, None, f"Prediction error: {str(e)}"
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -232,7 +331,6 @@ app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this-in-pr
 
 # Database configuration
 database_url = os.environ.get('DATABASE_URL', 'sqlite:///local.db')
-# Fix for Render's postgres:// URL
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 
@@ -252,7 +350,6 @@ class User(db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relationship to predictions
     predictions = db.relationship('PredictionHistory', backref='user', lazy=True, cascade='all, delete-orphan')
     
     def set_password(self, password):
@@ -281,7 +378,6 @@ class PredictionHistory(db.Model):
 with app.app_context():
     db.create_all()
     
-    # Create default admin if doesn't exist
     admin = User.query.filter_by(username='admin').first()
     if not admin:
         admin = User(username='admin', email='admin@example.com')
@@ -429,7 +525,6 @@ def predict():
                     'user': username
                 }
                 
-                # Save to database
                 history_entry = PredictionHistory(
                     username=username,
                     url=url,
@@ -441,7 +536,7 @@ def predict():
                 
                 flash(f'URL analyzed: {result["prediction"]}', result['prediction_class'])
             else:
-                flash('Model not loaded. Please check your .pkl file', 'danger')
+                flash('Model not loaded. Please check server logs', 'danger')
         else:
             flash('Please enter a URL', 'warning')
     
@@ -485,16 +580,11 @@ def about():
 def stats():
     """Detailed statistics and visualizations page"""
     
-    # Calculate additional metrics for visualizations
-    total_tests = model_stats['total_tests']
-    
-    # Confusion Matrix data - using actual values from trained model
     false_positives = model_stats['false_positives']
     false_negatives = model_stats['false_negatives']
     true_negatives = 57602
     true_positives = 13631
     
-    # Feature importance
     feature_importance = [
         {'name': 'URL Length', 'importance': 0.145},
         {'name': 'Domain Entropy', 'importance': 0.132},
@@ -508,7 +598,6 @@ def stats():
         {'name': 'Path Length', 'importance': 0.059},
     ]
     
-    # Performance over time
     performance_timeline = [
         {'epoch': 10, 'accuracy': 78.5, 'loss': 0.45},
         {'epoch': 20, 'accuracy': 83.2, 'loss': 0.38},
@@ -522,7 +611,6 @@ def stats():
         {'epoch': 100, 'accuracy': 93.82, 'loss': 0.14},
     ]
     
-    # Get total predictions from database
     total_predictions = PredictionHistory.query.count()
     
     stats_data = {
@@ -548,7 +636,7 @@ if __name__ == '__main__':
     if detector.model_loaded:
         print("[+] Ready to detect phishing URLs!")
     else:
-        print("[-] Model not loaded - check if .pkl file exists")
+        print("[-] Model not loaded - check logs above")
     print(f"\nDatabase: {app.config['SQLALCHEMY_DATABASE_URI']}")
     print("\nDefault login credentials:")
     print("  Username: admin | Password: admin123")
