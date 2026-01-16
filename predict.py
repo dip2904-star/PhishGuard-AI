@@ -179,19 +179,19 @@ def predict_url(url, model, scaler=None):
         features_scaled = scaler.transform(features_df)
         prediction = model.predict(features_scaled)[0]
         
-        # Get probability if available
+        # Get probability if available and convert to native Python float
         if hasattr(model, 'predict_proba'):
             proba = model.predict_proba(features_scaled)[0]
-            confidence = proba[prediction]
+            confidence = float(proba[prediction])  # Convert np.float64 to Python float
         else:
             confidence = None
     else:
         prediction = model.predict(features_df)[0]
         
-        # Get probability if available
+        # Get probability if available and convert to native Python float
         if hasattr(model, 'predict_proba'):
             proba = model.predict_proba(features_df)[0]
-            confidence = proba[prediction]
+            confidence = float(proba[prediction])  # Convert np.float64 to Python float
         else:
             confidence = None
     
@@ -210,7 +210,7 @@ def predict_url(url, model, scaler=None):
             if domain in url:
                 # Override to legitimate if it's a major brand homepage
                 prediction = 0
-                confidence = 0.95  # High confidence for whitelist
+                confidence = 0.95  # High confidence for whitelist (already Python float)
                 features['_whitelist_override'] = True
                 break
     
@@ -342,7 +342,8 @@ def predict_from_file(input_file, output_file, model, scaler=None):
         try:
             pred, conf, _ = predict_url(str(url), model, scaler)
             predictions.append(pred)
-            confidences.append(conf if conf else 0)
+            # Convert confidence to Python float if it exists
+            confidences.append(float(conf) if conf is not None else 0)
         except:
             predictions.append(-1)  # Error
             confidences.append(0)
@@ -359,6 +360,7 @@ def predict_from_file(input_file, output_file, model, scaler=None):
 
 if __name__ == "__main__":
     import sys
+    import glob
     
     if len(sys.argv) > 1:
         # Batch mode: python predict.py input.csv output.csv

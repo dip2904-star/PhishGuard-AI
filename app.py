@@ -296,7 +296,8 @@ class PhishingDetector:
             
             if hasattr(self.model, 'predict_proba'):
                 proba = self.model.predict_proba(features_df)[0]
-                confidence = proba[prediction] * 100
+                # Convert to native Python float for PostgreSQL compatibility
+                confidence = float(proba[prediction] * 100)
             else:
                 confidence = None
             
@@ -313,7 +314,7 @@ class PhishingDetector:
                 for domain in known_legitimate:
                     if domain in url:
                         prediction = 0
-                        confidence = 95.0
+                        confidence = 95.0  # Native Python float
                         features['_whitelist_override'] = True
                         break
             
@@ -398,7 +399,8 @@ def get_user_history(username):
             'prediction': h.prediction,
             'confidence': f"{h.confidence:.2f}%" if h.confidence else 'N/A',
             'confidence_value': h.confidence if h.confidence else 0,
-            'timestamp': h.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+            'timestamp': h.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'prediction_class': 'danger' if h.prediction == 'Phishing' else 'success'
         }
         for h in history
     ]
@@ -525,11 +527,14 @@ def predict():
                     'user': username
                 }
                 
+                # Convert confidence to native Python float for PostgreSQL compatibility
+                confidence_value = float(confidence) if confidence is not None else None
+                
                 history_entry = PredictionHistory(
                     username=username,
                     url=url,
                     prediction=result['prediction'],
-                    confidence=confidence
+                    confidence=confidence_value  # Use converted value
                 )
                 db.session.add(history_entry)
                 db.session.commit()
@@ -556,10 +561,13 @@ def api_predict():
     if prediction is None:
         return jsonify({'error': 'Model not loaded'}), 500
     
+    # Convert confidence to native Python float for JSON serialization
+    confidence_value = float(confidence) if confidence is not None else None
+    
     return jsonify({
         'url': url,
         'prediction': 'phishing' if prediction == 1 else 'legitimate',
-        'confidence': confidence,
+        'confidence': confidence_value,
         'timestamp': datetime.now().isoformat()
     })
 
