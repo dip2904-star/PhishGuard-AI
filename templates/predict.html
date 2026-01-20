@@ -37,12 +37,16 @@
     }
 
     @keyframes floatRotate {
-        0%, 100% {
+
+        0%,
+        100% {
             transform: translateY(0px) rotate(0deg) scale(1);
         }
+
         33% {
             transform: translateY(-40px) rotate(120deg) scale(1.1);
         }
+
         66% {
             transform: translateY(-20px) rotate(240deg) scale(0.9);
         }
@@ -86,6 +90,7 @@
             opacity: 0;
             transform: translateY(20px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -97,6 +102,7 @@
             width: 0;
             opacity: 0;
         }
+
         to {
             width: 100px;
             opacity: 1;
@@ -125,6 +131,7 @@
             opacity: 0;
             transform: translateY(40px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -273,6 +280,7 @@
             opacity: 0;
             transform: scale(0.9);
         }
+
         to {
             opacity: 1;
             transform: scale(1);
@@ -325,9 +333,12 @@
     }
 
     @keyframes iconPulse {
-        0%, 100% {
+
+        0%,
+        100% {
             transform: scale(1);
         }
+
         50% {
             transform: scale(1.05);
         }
@@ -360,7 +371,7 @@
     /* Details grid - enhanced */
     .details-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 24px;
         margin-bottom: 48px;
         animation: fadeInUp 0.8s ease 0.2s backwards;
@@ -475,18 +486,21 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.3),
-            transparent
-        );
+        background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent);
         animation: shimmer 2s infinite;
     }
 
     @keyframes shimmer {
-        0% { transform: translateX(-100%); }
-        100% { transform: translateX(100%); }
+        0% {
+            transform: translateX(-100%);
+        }
+
+        100% {
+            transform: translateX(100%);
+        }
     }
 
     .confidence-fill.confidence-success {
@@ -512,19 +526,66 @@
         letter-spacing: -1px;
     }
 
+    /* Indicator Categories */
+    .indicators-category {
+        margin-bottom: 24px;
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        overflow: hidden;
+    }
+
+    .category-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 24px;
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .category-header.positive {
+        background: linear-gradient(90deg, rgba(16, 185, 129, 0.1), transparent);
+        color: #059669;
+        border-bottom: 2px solid #10b981;
+    }
+
+    .category-header.danger {
+        background: linear-gradient(90deg, rgba(239, 68, 68, 0.1), transparent);
+        color: #dc2626;
+        border-bottom: 2px solid #ef4444;
+    }
+
+    .category-header.neutral {
+        background: linear-gradient(90deg, rgba(74, 144, 226, 0.1), transparent);
+        color: #4A90E2;
+        border-bottom: 2px solid #4A90E2;
+    }
+
+    .category-header i {
+        font-size: 18px;
+    }
+
     .indicators-grid {
         display: grid;
-        gap: 16px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1px;
+        background: var(--border);
     }
 
     .indicator-item {
         background: var(--bg-primary);
-        border: 1px solid var(--border);
-        padding: 24px;
+        padding: 20px 24px;
         display: flex;
-        gap: 20px;
-        align-items: start;
+        gap: 16px;
+        align-items: center;
         transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .indicator-item.indicator-success {
+        border-left: 3px solid #10b981;
     }
 
     .indicator-item.indicator-warning {
@@ -536,29 +597,127 @@
     }
 
     .indicator-item:hover {
-        transform: translateX(6px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        background: var(--bg-secondary);
+        transform: translateX(4px);
     }
 
     .indicator-item i {
-        font-size: 28px;
-        color: var(--text-secondary);
-        margin-top: 2px;
+        font-size: 24px;
+        width: 32px;
+        text-align: center;
+    }
+
+    .indicator-item.indicator-success i {
+        color: #10b981;
+    }
+
+    .indicator-item.indicator-warning i {
+        color: #f59e0b;
+    }
+
+    .indicator-item.indicator-danger i {
+        color: #ef4444;
+    }
+
+    .indicator-item>div {
+        flex: 1;
     }
 
     .indicator-item strong {
         display: block;
-        font-size: 16px;
-        font-weight: 500;
-        margin-bottom: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 4px;
     }
 
     .indicator-item p {
-        font-size: 14px;
+        font-size: 13px;
         color: var(--text-secondary);
         font-weight: 300;
         margin: 0;
-        line-height: 1.6;
+        line-height: 1.5;
+    }
+
+    /* Indicator badges */
+    .indicator-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .indicator-badge.success {
+        background: rgba(16, 185, 129, 0.15);
+        color: #059669;
+        border: 2px solid #10b981;
+    }
+
+    .indicator-badge.warning {
+        background: rgba(245, 158, 11, 0.15);
+        color: #d97706;
+        border: 2px solid #f59e0b;
+    }
+
+    .indicator-badge.danger {
+        background: rgba(239, 68, 68, 0.15);
+        color: #dc2626;
+        border: 2px solid #ef4444;
+    }
+
+    /* Metrics grid */
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 1px;
+        background: var(--border);
+    }
+
+    .metric-item {
+        background: var(--bg-primary);
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .metric-item:hover {
+        background: var(--bg-secondary);
+    }
+
+    .metric-value {
+        display: block;
+        font-size: 24px;
+        font-weight: 300;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+
+    .metric-label {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+        .indicators-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .metrics-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .metrics-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
     }
 
     /* Actions bar */
@@ -640,6 +799,12 @@
             flex-direction: column;
         }
     }
+
+    @media (max-width: 1024px) {
+        .details-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
 </style>
 
 <!-- Floating Geometric Decorations -->
@@ -663,14 +828,8 @@
             <form method="POST" class="scanner-form">
                 <div class="form-group-scanner">
                     <label>Enter URL to analyze</label>
-                    <input 
-                        type="text" 
-                        name="url" 
-                        placeholder="https://example.com" 
-                        required 
-                        autofocus
-                        class="url-input"
-                    >
+                    <input type="text" name="url" placeholder="https://example.com" required autofocus
+                        class="url-input">
                     <button type="submit" class="btn-scan">
                         <span>Analyze URL</span>
                     </button>
@@ -726,6 +885,12 @@
                     <span class="badge badge-{{ result.prediction_class }}">
                         {{ result.prediction }}
                     </span>
+                    {% if result.features._whitelist_override %}
+                    <div class="whitelist-badge">
+                        <i class="fas fa-check-circle"></i>
+                        Verified Domain
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 
@@ -735,73 +900,448 @@
                 <div class="detail-value">{{ result.confidence }}</div>
                 {% if result.confidence_value %}
                 <div class="confidence-bar">
-                    <div class="confidence-fill confidence-{{ result.prediction_class }}" 
-                         style="width: {{ result.confidence_value }}%"></div>
+                    <div class="confidence-fill confidence-{{ result.prediction_class }}"
+                        style="width: {{ result.confidence_value }}%"></div>
                 </div>
                 {% endif %}
             </div>
 
-            <!-- Timestamp -->
+            <!-- Phishing Probability -->
+            <div class="detail-card">
+                <div class="detail-label">Phishing Risk</div>
+                <div class="detail-value">{{ result.phishing_probability }}</div>
+                <div style="margin-top: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 6px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 11px; color: var(--text-secondary);">Risk Level</span>
+                        <span style="font-size: 11px; color: var(--text-secondary);">Threshold: {{
+                            (result.threshold_used * 100)|int }}%</span>
+                    </div>
+                    <div class="confidence-bar" style="position: relative;">
+                        <!-- Using replace logic to handle 'N/A' case if needed, but phishing_probability is formatted with % in python now -->
+                        <div class="confidence-fill confidence-{{ result.prediction_class }}"
+                            style="width: {{ result.phishing_probability|replace('%', '') if result.phishing_probability != 'N/A' else '0' }}%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Model Info -->
+            <div class="detail-card">
+                <div class="detail-label">Model Information</div>
+                <div class="model-info">
+                    <div class="model-info-item">
+                        <span class="model-info-label">Model</span>
+                        <span class="model-info-value">{{ result.model_name or 'XGBoost' }}</span>
+                    </div>
+                    <div class="model-info-item">
+                        <span class="model-info-label">Threshold</span>
+                        <span class="model-info-value">{{ (result.threshold_used * 100)|int }}%</span>
+                    </div>
+                    <div class="model-info-item">
+                        <span class="model-info-label">Features</span>
+                        <span class="model-info-value">32</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timestamp & Security Score -->
             <div class="detail-card">
                 <div class="detail-label">Scan Time</div>
                 <div class="detail-value time-value">{{ result.timestamp }}</div>
+                <div class="security-score">
+                    <div class="score-circle {% if result.prediction == 'Legitimate' %}safe{% else %}danger{% endif %}">
+                        {% if result.prediction == 'Legitimate' %}
+                        <i class="fas fa-shield-alt"></i>
+                        {% else %}
+                        <i class="fas fa-exclamation-triangle"></i>
+                        {% endif %}
+                    </div>
+                    <div class="score-text">
+                        <h4>{% if result.prediction == 'Legitimate' %}Safe to Visit{% else %}Avoid This URL{% endif %}
+                        </h4>
+                        <p>{% if result.prediction == 'Legitimate' %}No threats detected{% else %}Potential security
+                            risk{% endif %}</p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Indicators -->
-        {% if result.features.has_ip or result.features.num_suspicious_words > 0 or not result.features.has_https %}
+        <!-- Detection Indicators - Always show for transparency -->
         <div class="indicators-section">
-            <h3>Detection Indicators</h3>
-            <div class="indicators-grid">
-                {% if result.features.has_ip %}
-                <div class="indicator-item indicator-warning">
-                    <i class="fas fa-server"></i>
-                    <div>
-                        <strong>IP Address Detected</strong>
-                        <p>URL contains direct IP address</p>
+            <h3>Security Analysis</h3>
+
+            <!-- Positive Indicators -->
+            <div class="indicators-category">
+                <div class="category-header positive">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Security Strengths</span>
+                </div>
+                <div class="indicators-grid">
+                    {% if result.features.has_https %}
+                    <div class="indicator-item indicator-success">
+                        <i class="fas fa-lock"></i>
+                        <div>
+                            <strong>HTTPS Enabled</strong>
+                            <p>Secure encrypted connection</p>
+                        </div>
+                        <span class="indicator-badge success">✓</span>
                     </div>
+                    {% endif %}
+
+                    {% if result.features._whitelist_override %}
+                    <div class="indicator-item indicator-success">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <strong>Verified Domain</strong>
+                            <p>Known legitimate website</p>
+                        </div>
+                        <span class="indicator-badge success">✓</span>
+                    </div>
+                    {% endif %}
+
+                    {% if not result.features.has_ip %}
+                    <div class="indicator-item indicator-success">
+                        <i class="fas fa-globe"></i>
+                        <div>
+                            <strong>Standard Domain</strong>
+                            <p>Uses domain name, not IP address</p>
+                        </div>
+                        <span class="indicator-badge success">✓</span>
+                    </div>
+                    {% endif %}
+
+                    {% if result.features.num_suspicious_words == 0 %}
+                    <div class="indicator-item indicator-success">
+                        <i class="fas fa-file-alt"></i>
+                        <div>
+                            <strong>Clean Keywords</strong>
+                            <p>No suspicious terms detected</p>
+                        </div>
+                        <span class="indicator-badge success">✓</span>
+                    </div>
+                    {% endif %}
+
+                    {% if result.features.url_length < 75 %} <div class="indicator-item indicator-success">
+                        <i class="fas fa-ruler-horizontal"></i>
+                        <div>
+                            <strong>Normal URL Length</strong>
+                            <p>{{ result.features.url_length }} characters</p>
+                        </div>
+                        <span class="indicator-badge success">✓</span>
                 </div>
                 {% endif %}
-                
+
+                {% if not result.features.is_shortened %}
+                <div class="indicator-item indicator-success">
+                    <i class="fas fa-link"></i>
+                    <div>
+                        <strong>Direct URL</strong>
+                        <p>Not using URL shortener</p>
+                    </div>
+                    <span class="indicator-badge success">✓</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Risk Indicators -->
+        {% if result.features.has_ip or result.features.num_suspicious_words > 0 or not result.features.has_https or
+        result.features.is_shortened or result.features.url_length >= 75 or result.features.has_double_slash or
+        result.features.num_subdomains > 2 or result.features.has_brand_name %}
+        <div class="indicators-category">
+            <div class="category-header danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Risk Factors</span>
+            </div>
+            <div class="indicators-grid">
+                {% if result.features.has_ip %}
+                <div class="indicator-item indicator-danger">
+                    <i class="fas fa-server"></i>
+                    <div>
+                        <strong>IP Address in URL</strong>
+                        <p>Direct IP address instead of domain name</p>
+                    </div>
+                    <span class="indicator-badge danger">!</span>
+                </div>
+                {% endif %}
+
                 {% if result.features.num_suspicious_words > 0 %}
                 <div class="indicator-item indicator-warning">
                     <i class="fas fa-flag"></i>
                     <div>
                         <strong>Suspicious Keywords</strong>
-                        <p>{{ result.features.num_suspicious_words }} flagged terms found</p>
+                        <p>{{ result.features.num_suspicious_words }} flagged term(s) like 'login', 'verify', etc.</p>
                     </div>
+                    <span class="indicator-badge warning">{{ result.features.num_suspicious_words }}</span>
                 </div>
                 {% endif %}
-                
+
                 {% if not result.features.has_https %}
                 <div class="indicator-item indicator-danger">
                     <i class="fas fa-unlock"></i>
                     <div>
                         <strong>No HTTPS</strong>
-                        <p>Connection is not secure</p>
+                        <p>Connection is not encrypted</p>
                     </div>
+                    <span class="indicator-badge danger">!</span>
                 </div>
                 {% endif %}
-                
+
                 {% if result.features.is_shortened %}
                 <div class="indicator-item indicator-warning">
-                    <i class="fas fa-link"></i>
+                    <i class="fas fa-compress-arrows-alt"></i>
                     <div>
                         <strong>URL Shortener</strong>
-                        <p>Uses link shortening service</p>
+                        <p>Link destination is hidden</p>
                     </div>
+                    <span class="indicator-badge warning">!</span>
+                </div>
+                {% endif %}
+
+                {% if result.features.url_length >= 75 %}
+                <div class="indicator-item indicator-warning">
+                    <i class="fas fa-ruler"></i>
+                    <div>
+                        <strong>Long URL</strong>
+                        <p>{{ result.features.url_length }} characters - unusually long</p>
+                    </div>
+                    <span class="indicator-badge warning">{{ result.features.url_length }}</span>
+                </div>
+                {% endif %}
+
+                {% if result.features.has_double_slash %}
+                <div class="indicator-item indicator-warning">
+                    <i class="fas fa-slash"></i>
+                    <div>
+                        <strong>Double Slash in Path</strong>
+                        <p>Unusual URL structure detected</p>
+                    </div>
+                    <span class="indicator-badge warning">!</span>
+                </div>
+                {% endif %}
+
+                {% if result.features.num_subdomains > 2 %}
+                <div class="indicator-item indicator-warning">
+                    <i class="fas fa-sitemap"></i>
+                    <div>
+                        <strong>Multiple Subdomains</strong>
+                        <p>{{ result.features.num_subdomains }} subdomains detected</p>
+                    </div>
+                    <span class="indicator-badge warning">{{ result.features.num_subdomains }}</span>
+                </div>
+                {% endif %}
+
+                {% if result.features.has_brand_name and not result.features._whitelist_override %}
+                <div class="indicator-item indicator-warning">
+                    <i class="fas fa-trademark"></i>
+                    <div>
+                        <strong>Brand Name Detected</strong>
+                        <p>Contains well-known brand name - possible spoofing</p>
+                    </div>
+                    <span class="indicator-badge warning">!</span>
                 </div>
                 {% endif %}
             </div>
         </div>
         {% endif %}
 
-        <!-- Actions -->
-        <div class="actions-bar">
-            <a href="{{ url_for('predict') }}" class="btn-secondary">Scan Another URL</a>
-            <a href="{{ url_for('history') }}" class="btn-tertiary">View History →</a>
+        <!-- URL Metrics Summary -->
+        <div class="indicators-category">
+            <div class="category-header neutral">
+                <i class="fas fa-chart-bar"></i>
+                <span>URL Metrics</span>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-item">
+                    <span class="metric-value">{{ result.features.url_length }}</span>
+                    <span class="metric-label">URL Length</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-value">{{ result.features.num_dots }}</span>
+                    <span class="metric-label">Dots</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-value">{{ result.features.num_subdomains }}</span>
+                    <span class="metric-label">Subdomains</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-value">{{ result.features.path_length }}</span>
+                    <span class="metric-label">Path Length</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-value">{{ "%.2f"|format(result.features.url_entropy) }}</span>
+                    <span class="metric-label">Entropy</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-value">{{ result.features.num_special }}</span>
+                    <span class="metric-label">Special Chars</span>
+                </div>
+            </div>
         </div>
     </div>
-    {% endif %}
+
+    <!-- Actions -->
+    <div class="actions-bar">
+        <a href="{{ url_for('predict') }}" class="btn-secondary">Scan Another URL</a>
+        <a href="{{ url_for('history') }}" class="btn-tertiary">View History →</a>
+    </div>
 </div>
+{% endif %}
+</div>
+
+<style>
+    /* Additional styles for enhanced results */
+    .whitelist-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.1));
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        border-radius: 8px;
+        color: #059669;
+        font-size: 14px;
+        font-weight: 500;
+        margin-top: 16px;
+    }
+
+    .whitelist-badge i {
+        font-size: 18px;
+    }
+
+    .model-info {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+    }
+
+    .model-info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .model-info-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+
+    .model-info-value {
+        font-size: 14px;
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    .probability-indicator {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 12px;
+    }
+
+    .probability-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+        min-width: 120px;
+    }
+
+    .probability-bar {
+        flex: 1;
+        height: 8px;
+        background: var(--border);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .probability-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 1s ease;
+    }
+
+    .probability-fill.low {
+        background: linear-gradient(90deg, #10b981, #34d399);
+    }
+
+    .probability-fill.medium {
+        background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    }
+
+    .probability-fill.high {
+        background: linear-gradient(90deg, #ef4444, #f87171);
+    }
+
+    .probability-value {
+        font-size: 14px;
+        font-weight: 600;
+        min-width: 60px;
+        text-align: right;
+    }
+
+    .threshold-line {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--text-primary);
+        opacity: 0.5;
+    }
+
+    .security-score {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 24px;
+        padding: 20px;
+        background: var(--bg-secondary);
+        border-radius: 8px;
+    }
+
+    .score-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: 600;
+    }
+
+    .score-circle.safe {
+        background: rgba(16, 185, 129, 0.15);
+        color: #059669;
+        border: 3px solid #10b981;
+    }
+
+    .score-circle.danger {
+        background: rgba(239, 68, 68, 0.15);
+        color: #dc2626;
+        border: 3px solid #ef4444;
+    }
+
+    .score-text {
+        text-align: left;
+    }
+
+    .score-text h4 {
+        font-size: 18px;
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+
+    .score-text p {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin: 0;
+    }
+</style>
 {% endblock %}

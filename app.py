@@ -229,6 +229,7 @@ class PhishingDetector:
     def __init__(self, model_path='phishing_detection_model_random_forest_compressed.pkl'):
         self.model = None
         self.model_loaded = False
+        self.model_name = "Random Forest (Compressed)"
         self.feature_order = [
             'url_length', 'num_dots', 'num_hyphens', 'num_underscores', 
             'num_slashes', 'num_questionmarks', 'num_equals', 'num_at', 
@@ -282,7 +283,7 @@ class PhishingDetector:
     
     def predict(self, url):
         if not self.model_loaded:
-            return None, None, "Model not loaded"
+            return None, None, None, "Model not loaded"
         
         try:
             url = url.strip().lower()
@@ -299,8 +300,10 @@ class PhishingDetector:
                 proba = self.model.predict_proba(features_df)[0]
                 # Convert to native Python float for PostgreSQL compatibility
                 confidence = float(proba[prediction] * 100)
+                phishing_prob = float(proba[1] * 100)
             else:
                 confidence = None
+                phishing_prob = None
             
             # IMPROVED WHITELIST LOGIC
             known_legitimate = [
@@ -336,16 +339,17 @@ class PhishingDetector:
                 if url_domain == legit_domain or url_domain.endswith('.' + legit_domain):
                     prediction = 0
                     confidence = 98.0
+                    phishing_prob = 2.0
                     features['_whitelist_override'] = True
                     break
             
-            return prediction, confidence, features
+            return prediction, confidence, phishing_prob, features
             
         except Exception as e:
             print(f"[-] Prediction error: {e}")
             import traceback
             traceback.print_exc()
-            return None, None, f"Prediction error: {str(e)}"
+            return None, None, None, f"Prediction error: {str(e)}"
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -534,7 +538,7 @@ def predict():
         url = request.form.get('url', '').strip()
         
         if url:
-            prediction, confidence, features = detector.predict(url)
+            prediction, confidence, phishing_prob, features = detector.predict(url)
             
             if prediction is not None:
                 result = {
@@ -543,6 +547,9 @@ def predict():
                     'prediction_class': 'danger' if prediction == 1 else 'success',
                     'confidence': f"{confidence:.2f}%" if confidence else 'N/A',
                     'confidence_value': confidence if confidence else 0,
+                    'phishing_probability': f"{phishing_prob:.2f}%" if phishing_prob is not None else 'N/A',
+                    'threshold_used': 0.5,
+                    'model_name': detector.model_name,
                     'features': features,
                     'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                     'user': username
@@ -577,7 +584,7 @@ def api_predict():
     if not url:
         return jsonify({'error': 'No URL provided'}), 400
     
-    prediction, confidence, features = detector.predict(url)
+    prediction, confidence, phishing_prob, features = detector.predict(url)
     
     if prediction is None:
         return jsonify({'error': 'Model not loaded'}), 500
@@ -589,6 +596,7 @@ def api_predict():
         'url': url,
         'prediction': 'phishing' if prediction == 1 else 'legitimate',
         'confidence': confidence_value,
+        'phishing_probability': phishing_prob,
         'timestamp': datetime.now().isoformat()
     })
 

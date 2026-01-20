@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PhishGuard AI - Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -129,7 +131,7 @@
             opacity: 0;
             transform: translateY(40px);
             transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
-                        transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+                transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .fade-in.visible {
@@ -137,9 +139,17 @@
             transform: translateY(0);
         }
 
-        .fade-in-delay-1 { transition-delay: 0.1s; }
-        .fade-in-delay-2 { transition-delay: 0.2s; }
-        .fade-in-delay-3 { transition-delay: 0.3s; }
+        .fade-in-delay-1 {
+            transition-delay: 0.1s;
+        }
+
+        .fade-in-delay-2 {
+            transition-delay: 0.2s;
+        }
+
+        .fade-in-delay-3 {
+            transition-delay: 0.3s;
+        }
 
         .hero-left h1 {
             font-size: 72px;
@@ -157,14 +167,12 @@
         }
 
         .hero-left h1 strong:hover {
-            background: linear-gradient(
-                135deg,
-                #4A90E2 0%,
-                #5B7CED 25%,
-                #7B68EE 50%,
-                #9370DB 75%,
-                #8B7EC8 100%
-            );
+            background: linear-gradient(135deg,
+                    #4A90E2 0%,
+                    #5B7CED 25%,
+                    #7B68EE 50%,
+                    #9370DB 75%,
+                    #8B7EC8 100%);
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -329,9 +337,12 @@
         }
 
         @keyframes bounce {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateX(-50%) translateY(0);
             }
+
             50% {
                 transform: translateX(-50%) translateY(10px);
             }
@@ -352,6 +363,7 @@
             margin-bottom: 80px;
             overflow: hidden;
             position: relative;
+            padding: 40px 0;
         }
 
         /* Scrolling text wrapper */
@@ -359,14 +371,31 @@
             width: 100%;
             overflow: hidden;
             position: relative;
-            cursor: none;
+            cursor: crosshair;
+            background: linear-gradient(180deg,
+                    transparent 0%,
+                    rgba(74, 144, 226, 0.02) 50%,
+                    transparent 100%);
+            border-top: 1px solid rgba(74, 144, 226, 0.1);
+            border-bottom: 1px solid rgba(74, 144, 226, 0.1);
+            padding: 20px 0;
+            transition: all 0.5s ease;
+        }
+
+        .scrolling-text-wrapper:hover {
+            background: linear-gradient(180deg,
+                    transparent 0%,
+                    rgba(74, 144, 226, 0.05) 50%,
+                    transparent 100%);
+            border-top-color: rgba(74, 144, 226, 0.3);
+            border-bottom-color: rgba(74, 144, 226, 0.3);
         }
 
         /* Scrolling text animation */
         .scrolling-text {
             display: flex;
             white-space: nowrap;
-            animation: scrollLeft 20s linear infinite;
+            animation: scrollLeft 25s linear infinite;
             position: relative;
         }
 
@@ -374,48 +403,92 @@
             0% {
                 transform: translateX(0);
             }
+
             100% {
                 transform: translateX(-33.333%);
             }
         }
 
         .text-item {
-            font-size: 96px;
-            font-weight: 300;
-            letter-spacing: 1px;
-            padding: 0 150px;
+            font-size: 80px;
+            font-weight: 200;
+            letter-spacing: 4px;
+            padding: 0 100px;
             display: inline-block;
-            color: #e5e5e5;
+            color: #e0e0e0;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             position: relative;
-            transition: color 0.3s ease;
+            transition: all 0.4s ease;
+            text-transform: uppercase;
         }
 
-        /* Gradient layer that gets revealed */
+        /* Separator dots between text items */
+        .text-item::after {
+            content: '◆';
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: rgba(74, 144, 226, 0.3);
+            animation: pulseDot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseDot {
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: translateY(-50%) scale(1);
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: translateY(-50%) scale(1.3);
+            }
+        }
+
+        /* Gradient layer that gets revealed on hover */
         .text-item::before {
             content: attr(data-text);
             position: absolute;
             left: 0;
             top: 0;
-            padding: 0 150px;
-            background: linear-gradient(
-                135deg,
-                #4A90E2 0%,
-                #7B68EE 25%,
-                #9370DB 50%,
-                #8B7EC8 75%,
-                #5B7CED 100%
-            );
+            padding: 0 100px;
+            background: linear-gradient(135deg,
+                    #4A90E2 0%,
+                    #5B7CED 20%,
+                    #7B68EE 40%,
+                    #9370DB 60%,
+                    #8B7EC8 80%,
+                    #4A90E2 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             clip-path: circle(0px at var(--mouse-x, 50%) var(--mouse-y, 50%));
-            transition: clip-path 0.2s ease;
             pointer-events: none;
+            text-shadow: none;
+            filter: drop-shadow(0 0 30px rgba(74, 144, 226, 0.4));
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         .scrolling-text-wrapper:hover .text-item::before {
-            clip-path: circle(150px at var(--mouse-x, 50%) var(--mouse-y, 50%));
+            clip-path: circle(200px at var(--mouse-x, 50%) var(--mouse-y, 50%));
         }
 
         /* Pause animation on hover */
@@ -423,21 +496,50 @@
             animation-play-state: paused;
         }
 
+        /* Glow effect on entire section when hovered */
+        .scrolling-text-wrapper::before,
+        .scrolling-text-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 150px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .scrolling-text-wrapper::before {
+            left: 0;
+            background: linear-gradient(to right, var(--bg-secondary), transparent);
+        }
+
+        .scrolling-text-wrapper::after {
+            right: 0;
+            background: linear-gradient(to left, var(--bg-secondary), transparent);
+        }
+
         /* Responsive font sizes */
         @media (max-width: 768px) {
             .text-item {
-                font-size: 48px;
-                padding: 0 75px;
+                font-size: 36px;
+                padding: 0 50px;
+                letter-spacing: 2px;
             }
-            
+
             .text-item::before {
-                padding: 0 75px;
+                padding: 0 50px;
+            }
+
+            .text-item::after {
+                font-size: 10px;
+                right: -5px;
             }
 
             .scrolling-text-wrapper:hover .text-item::before {
-                clip-path: circle(100px at var(--mouse-x, 50%) var(--mouse-y, 50%));
+                clip-path: circle(120px at var(--mouse-x, 50%) var(--mouse-y, 50%));
             }
         }
+
 
         .features-grid {
             display: grid;
@@ -607,6 +709,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Navigation -->
     <nav id="nav">
@@ -633,8 +736,8 @@
                     Detection
                 </h1>
                 <p class="fade-in fade-in-delay-1">
-                    Leveraging machine learning to identify and neutralize 
-                    sophisticated phishing threats in real-time with 
+                    Leveraging machine learning to identify and neutralize
+                    sophisticated phishing threats in real-time with
                     industry-leading accuracy.
                 </p>
                 <div class="hero-stats fade-in fade-in-delay-2">
@@ -663,25 +766,13 @@
                     <form method="POST" action="/login">
                         <div class="form-group">
                             <label for="username">Username</label>
-                            <input 
-                                type="text" 
-                                id="username" 
-                                name="username" 
-                                placeholder="Enter username" 
-                                required 
-                                autofocus
-                            >
+                            <input type="text" id="username" name="username" placeholder="Enter username" required
+                                autofocus>
                         </div>
 
                         <div class="form-group">
                             <label for="password">Password</label>
-                            <input 
-                                type="password" 
-                                id="password" 
-                                name="password" 
-                                placeholder="Enter password" 
-                                required
-                            >
+                            <input type="password" id="password" name="password" placeholder="Enter password" required>
                         </div>
 
                         <button type="submit" class="btn-primary">
@@ -691,7 +782,7 @@
 
                     <div class="form-footer">
                         <p>
-                            Don't have an account? 
+                            Don't have an account?
                             <a href="/signup">Create one</a>
                         </p>
                     </div>
@@ -710,9 +801,12 @@
             <div class="section-title-container fade-in">
                 <div class="scrolling-text-wrapper">
                     <div class="scrolling-text">
-                        <span class="text-item" data-text="Powered by Advanced Machine Learning">Powered by Advanced Machine Learning</span>
-                        <span class="text-item" data-text="Powered by Advanced Machine Learning">Powered by Advanced Machine Learning</span>
-                        <span class="text-item" data-text="Powered by Advanced Machine Learning">Powered by Advanced Machine Learning</span>
+                        <span class="text-item" data-text="Powered by Advanced Machine Learning">Powered by Advanced
+                            Machine Learning</span>
+                        <span class="text-item" data-text="Powered by Advanced Machine Learning">Powered by Advanced
+                            Machine Learning</span>
+                        <span class="text-item" data-text="Powered by Advanced Machine Learning">Powered by Advanced
+                            Machine Learning</span>
                     </div>
                 </div>
             </div>
@@ -723,7 +817,7 @@
                     </div>
                     <h3>AI-Powered Detection</h3>
                     <p>
-                        Random Forest algorithms analyze 32+ URL features 
+                        Random Forest algorithms analyze 32+ URL features
                         to identify sophisticated phishing patterns
                     </p>
                 </div>
@@ -733,7 +827,7 @@
                     </div>
                     <h3>Real-Time Analysis</h3>
                     <p>
-                        Sub-second response times for immediate threat 
+                        Sub-second response times for immediate threat
                         assessment and security decisions
                     </p>
                 </div>
@@ -743,7 +837,7 @@
                     </div>
                     <h3>Enterprise Security</h3>
                     <p>
-                        Built for organizations demanding reliable, 
+                        Built for organizations demanding reliable,
                         scalable protection with comprehensive audit trails
                     </p>
                 </div>
@@ -760,15 +854,15 @@
         const scene = new THREE.Scene();
         const container = document.getElementById('spiral-container');
         const camera = new THREE.PerspectiveCamera(
-            75, 
-            container.offsetWidth / container.offsetHeight, 
-            0.1, 
+            75,
+            container.offsetWidth / container.offsetHeight,
+            0.1,
             1000
         );
-        const renderer = new THREE.WebGLRenderer({ 
-            canvas: canvas, 
-            alpha: true, 
-            antialias: true 
+        const renderer = new THREE.WebGLRenderer({
+            canvas: canvas,
+            alpha: true,
+            antialias: true
         });
 
 
@@ -779,7 +873,7 @@
         // Particle system
         const particles = [];
         const particleCount = 1000;
-        
+
         // Sophisticated blue-purple tech palette
         const colors = [
             new THREE.Color(0x4A90E2), // Blue
@@ -795,7 +889,7 @@
         class Particle {
             constructor(index) {
                 this.index = index;
-                
+
                 // Create triangle geometry
                 const geometry = new THREE.BufferGeometry();
                 const size = Math.random() * 12 + 4;
@@ -805,57 +899,57 @@
                     size * 0.5, -size * 0.433, 0
                 ]);
                 geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-                
+
                 // Color selection
                 const color = colors[Math.floor(Math.random() * colors.length)];
-                const material = new THREE.MeshBasicMaterial({ 
+                const material = new THREE.MeshBasicMaterial({
                     color: color,
                     side: THREE.DoubleSide,
                     transparent: true,
                     opacity: 0.7
                 });
-                
+
                 this.mesh = new THREE.Mesh(geometry, material);
-                
+
                 // Spiral positioning (fibonacci-like distribution) - spread wider
                 const phi = index * 0.12;
                 const theta = index * 0.06;
                 const radius = 60 + index * 0.5;
-                
+
                 this.baseX = radius * Math.sin(theta) * Math.cos(phi);
                 this.baseY = radius * Math.sin(theta) * Math.sin(phi);
                 this.baseZ = radius * Math.cos(theta) - 50; // Offset Z for better depth
-                
+
                 this.mesh.position.set(this.baseX, this.baseY, this.baseZ);
-                
+
                 // Random rotation speeds
                 this.rotationSpeed = {
                     x: (Math.random() - 0.5) * 0.015,
                     y: (Math.random() - 0.5) * 0.015,
                     z: (Math.random() - 0.5) * 0.015
                 };
-                
+
                 scene.add(this.mesh);
             }
-            
+
             update(time) {
                 // Gentle rotation of the entire sphere
                 const globalRotation = time * 0.0001;
-                
+
                 const x = this.baseX;
                 const y = this.baseY;
                 const z = this.baseZ;
-                
+
                 // Rotate around Y axis
                 this.mesh.position.x = x * Math.cos(globalRotation) - z * Math.sin(globalRotation);
                 this.mesh.position.y = y;
                 this.mesh.position.z = x * Math.sin(globalRotation) + z * Math.cos(globalRotation);
-                
+
                 // Individual particle rotation
                 this.mesh.rotation.x += this.rotationSpeed.x;
                 this.mesh.rotation.y += this.rotationSpeed.y;
                 this.mesh.rotation.z += this.rotationSpeed.z;
-                
+
                 // Gentle floating effect
                 this.mesh.position.y += Math.sin(time * 0.0008 + this.index * 0.1) * 0.08;
             }
@@ -867,10 +961,10 @@
         }
 
         // Create connecting lines (subtle)
-        const linesMaterial = new THREE.LineBasicMaterial({ 
-            color: 0xdddddd, 
-            transparent: true, 
-            opacity: 0.12 
+        const linesMaterial = new THREE.LineBasicMaterial({
+            color: 0xdddddd,
+            transparent: true,
+            opacity: 0.12
         });
         const linesGeometry = new THREE.BufferGeometry();
         const linePositions = [];
@@ -902,7 +996,7 @@
         document.addEventListener('mousemove', (event) => {
             mouseX = (event.clientX / window.innerWidth) * 2 - 1;
             mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
-            
+
             targetRotationY = mouseX * 0.2;
             targetRotationX = mouseY * 0.2;
         });
@@ -912,10 +1006,10 @@
         function animateSpiral() {
             requestAnimationFrame(animateSpiral);
             time++;
-            
+
             // Update particles
             particles.forEach(particle => particle.update(time));
-            
+
             // Update line positions
             const positions = lines.geometry.attributes.position.array;
             let index = 0;
@@ -930,11 +1024,11 @@
                 }
             }
             lines.geometry.attributes.position.needsUpdate = true;
-            
+
             // Smooth camera rotation based on mouse
             scene.rotation.y += (targetRotationY - scene.rotation.y) * 0.05;
             scene.rotation.x += (targetRotationX - scene.rotation.x) * 0.05;
-            
+
             renderer.render(scene, camera);
         }
 
@@ -951,7 +1045,7 @@
         // ========================================
         // Page Interactions
         // ========================================
-        
+
         // Navbar scroll effect
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('nav');
@@ -993,23 +1087,33 @@
             }, 100);
         });
 
-        // Mouse tracking for scrolling text spotlight effect
+        // Mouse tracking for scrolling text spotlight effect - optimized for responsiveness
         const scrollingWrapper = document.querySelector('.scrolling-text-wrapper');
         const textItems = document.querySelectorAll('.text-item');
-        
+        let scrollTextHovering = false;
+        let scrollTextPosX = 0, scrollTextPosY = 0;
+
         if (scrollingWrapper) {
+            scrollingWrapper.addEventListener('mouseenter', () => {
+                scrollTextHovering = true;
+            });
+
             scrollingWrapper.addEventListener('mousemove', (e) => {
-                const rect = scrollingWrapper.getBoundingClientRect();
-                const x = ((e.clientX - rect.left) / rect.width) * 100;
-                const y = ((e.clientY - rect.top) / rect.height) * 100;
-                
+                // Direct update for instant response
                 textItems.forEach(item => {
-                    item.style.setProperty('--mouse-x', `${x}%`);
-                    item.style.setProperty('--mouse-y', `${y}%`);
+                    const itemRect = item.getBoundingClientRect();
+                    const localX = e.clientX - itemRect.left;
+                    const localY = e.clientY - itemRect.top;
+                    const xPercent = (localX / itemRect.width) * 100;
+                    const yPercent = (localY / itemRect.height) * 100;
+
+                    item.style.setProperty('--mouse-x', `${xPercent}%`);
+                    item.style.setProperty('--mouse-y', `${yPercent}%`);
                 });
             });
 
             scrollingWrapper.addEventListener('mouseleave', () => {
+                scrollTextHovering = false;
                 textItems.forEach(item => {
                     item.style.setProperty('--mouse-x', '50%');
                     item.style.setProperty('--mouse-y', '50%');
