@@ -158,11 +158,56 @@ def extract_features_single(url):
     
     try:
         parsed = urlparse(url)
-        netloc = parsed.netloc
-        parts = netloc.split('.')
-        domain = parts[-2] if len(parts) >= 2 else netloc
-        subdomain = '.'.join(parts[:-2]) if len(parts) > 2 else ''
-        tld = parts[-1] if len(parts) >= 1 else ''
+        netloc = parsed.netloc.lower()
+        if netloc.startswith('www.'):
+            netloc = netloc[4:]
+            
+        # Smart TLD parsing without tldextract
+        # We need to handle accurate domain extraction for .ac.in, .co.uk, etc.
+        common_multipart_tlds = [
+            '.ac.in', '.co.in', '.gov.in', '.edu.in', '.net.in', '.org.in',
+            '.ac.uk', '.co.uk', '.gov.uk', '.ltd.uk', '.me.uk', '.net.uk', '.org.uk', '.plc.uk',
+            '.com.au', '.net.au', '.org.au', '.edu.au', '.gov.au',
+            '.com.sg', '.edu.sg', '.gov.sg',
+            '.com.my', '.edu.my', '.gov.my',
+            '.co.jp', '.ac.jp', '.go.jp',
+            '.co.kr', '.ac.kr', '.go.kr',
+            '.co.nz', '.ac.nz', '.govt.nz',
+            '.co.za', '.ac.za', '.gov.za',
+            '.com.br', '.gov.br',
+            '.com.mx', '.gob.mx'
+        ]
+        
+        domain = ""
+        subdomain = ""
+        tld = ""
+        
+        # Check for multi-part TLD match first
+        multipart_match = False
+        for mtld in common_multipart_tlds:
+            if netloc.endswith(mtld):
+                tld = mtld.lstrip('.')
+                # Remove TLD from netloc
+                remainder = netloc[:-len(mtld)]
+                parts = remainder.split('.')
+                
+                if len(parts) >= 1:
+                    domain = parts[-1]
+                    subdomain = '.'.join(parts[:-1])
+                multipart_match = True
+                break
+        
+        # Standard parsing if no multi-part match
+        if not multipart_match:
+            parts = netloc.split('.')
+            if len(parts) >= 2:
+                tld = parts[-1]
+                domain = parts[-2]
+                subdomain = '.'.join(parts[:-2])
+            else:
+                tld = ""
+                domain = netloc
+                subdomain = ""
         
         features['has_https'] = 1 if parsed.scheme == 'https' else 0
         features['domain_length'] = len(domain)
@@ -173,6 +218,7 @@ def extract_features_single(url):
         features['num_subdomains'] = subdomain.count('.') + 1 if subdomain else 0
         features['tld_length'] = len(tld)
     except:
+        # Fallback values
         features['has_https'] = 0
         features['domain_length'] = 0
         features['subdomain_length'] = 0
@@ -248,6 +294,10 @@ class PhishingDetector:
         file_size = os.path.getsize(model_path)
         print(f"[*] Loading compressed model from {model_path} ({file_size/(1024*1024):.2f} MB)...")
         
+        # High threshold to reduce false positives (legitimate sites marked as phishing)
+        # Standard RF models can be over-sensitive. 0.65 means we need 65% confidence to call it phishing.
+        self.threshold = 0.65 
+
         # Try multiple loading strategies
         load_methods = []
         
@@ -298,51 +348,109 @@ class PhishingDetector:
             
             if hasattr(self.model, 'predict_proba'):
                 proba = self.model.predict_proba(features_df)[0]
-                # Convert to native Python float for PostgreSQL compatibility
-                confidence = float(proba[prediction] * 100)
                 phishing_prob = float(proba[1] * 100)
-            else:
-                confidence = None
-                phishing_prob = None
-            
-            # IMPROVED WHITELIST LOGIC
-            known_legitimate = [
-                # Major websites
-                'google.com', 'google.co', 'youtube.com', 'facebook.com', 'amazon.com', 
-                'amazon.in', 'amazon.co.uk', 'amazon.de', 'amazon.fr', 'amazon.ca',
-                'wikipedia.org', 'twitter.com', 'x.com', 'instagram.com', 'linkedin.com',
-                'microsoft.com', 'apple.com', 'github.com', 'stackoverflow.com',
-                'reddit.com', 'netflix.com', 'ebay.com', 'walmart.com', 'yahoo.com',
-                'bing.com', 'twitch.tv', 'zoom.us', 'dropbox.com', 'spotify.com',
-                'paypal.com', 'chase.com', 'bankofamerica.com', 'wellsfargo.com',
-                'gmail.com', 'outlook.com', 'live.com', 'office.com', 'office365.com',
-                'icloud.com', 'whatsapp.com', 'telegram.org', 'discord.com',
-                'tiktok.com', 'pinterest.com', 'tumblr.com', 'quora.com',
-                'medium.com', 'wordpress.com', 'blogger.com', 'cloudflare.com',
                 
-                # Cloud hosting / PaaS / Dev
-                'onrender.com', 'render.com', 'vercel.app', 'vercel.com',
-                'netlify.app', 'netlify.com', 'herokuapp.com', 'heroku.com',
-                'railway.app', 'fly.io', 'fly.dev', 'github.io', 'content.com'
+                # Custom Threshold Logic
+                # If probability > threshold => Phishing (1), else Legitimate (0)
+                if proba[1] >= self.threshold:
+                    prediction = 1
+                    confidence = phishing_prob
+                else:
+                    prediction = 0
+                    confidence = 100 - phishing_prob
+            else:
+                # Fallback for models without probability
+                prediction = self.model.predict(features_df)[0]
+                confidence = 80.0 # Default confidence
+                phishing_prob = 80.0 if prediction == 1 else 20.0
+            
+            # IMPROVED WHITELIST LOGIC - EXPANDED
+            known_legitimate = [
+                # Search Engines & Tech Giants
+                'google.com', 'google.co', 'google.co.in', 'google.co.uk', 'google.de', 'google.fr', 'google.br', 'google.ja',
+                'youtube.com', 'youtu.be', 'facebook.com', 'fb.com', 'amazon.com', 'amazon.co.uk', 'amazon.in', 'amazon.de',
+                'yahoo.com', 'yandex.ru', 'bing.com', 'live.com', 'microsoft.com', 'office.com', 'office365.com',
+                'apple.com', 'icloud.com', 'whatsapp.com', 'instagram.com', 'twitter.com', 'x.com', 't.co',
+                'linkedin.com', 'netflix.com', 'tiktok.com', 'naver.com', 'pinterest.com', 'reddit.com',
+                
+                # Dev & Cloud (CRITICAL: Often flagged due to subdomains)
+                'github.com', 'github.io', 'githubusercontent.com', 'gitlab.com', 'bitbucket.org',
+                'stackoverflow.com', 'stackexchange.com', 'medium.com', 'dev.to', 'npmjs.com', 'pypi.org',
+                'docker.com', 'aws.amazon.com', 'console.aws.amazon.com', 'azure.microsoft.com', 'cloud.google.com',
+                'heroku.com', 'herokuapp.com', 'vercel.com', 'vercel.app', 'netlify.com', 'netlify.app',
+                'render.com', 'onrender.com', 'railway.app', 'fly.io', 'firebase.google.com', 'web.app',
+                'supabase.com', 'supabase.co', 'planetscale.com', 'cloudflare.com', 'pages.dev',
+                
+                # Education & Docs
+                'wikipedia.org', 'wikimedia.org', 'quora.com', 'researchgate.net', 'archive.org',
+                'coursera.org', 'udemy.com', 'edx.org', 'khanacademy.org', 'mit.edu', 'stanford.edu', 'harvard.edu',
+                'docs.python.org', 'developer.mozilla.org', 'w3schools.com', 'geeksforgeeks.org',
+                
+                # Banking & Finance (High False Positive Risk)
+                'paypal.com', 'chase.com', 'bankofamerica.com', 'wellsfargo.com', 'citi.com', 'americanexpress.com',
+                'capitalone.com', 'discover.com', 'stripe.com', 'wise.com', 'revolut.com', 'robinhood.com',
+                'coinbase.com', 'binance.com', 'blockchain.com',
+                
+                # Communications
+                'zoom.us', 'skype.com', 'slack.com', 'discord.com', 'telegram.org', 'wechat.com', 'line.me',
+                'messenger.com', 'snapchat.com', 't.me',
+                
+                # Media & Entertainment
+                'spotify.com', 'twitch.tv', 'vimeo.com', 'soundcloud.com', 'dailymotion.com', 'hulu.com',
+                'disneyplus.com', 'hbomax.com', 'primevideo.com', 'bbc.co.uk', 'cnn.com', 'nytimes.com',
+                'forbes.com', 'bloomberg.com', 'wsj.com', 'reuters.com', 'theguardian.com',
+                
+                # E-commerce & Shopping
+                'ebay.com', 'walmart.com', 'target.com', 'bestbuy.com', 'homedepot.com', 'ikea.com',
+                'etsy.com', 'aliexpress.com', 'taobao.com', 'tmall.com', 'shopify.com',
+                
+                # Tools & Utilities
+                'dropbox.com', 'wetransfer.com', 'canva.com', 'figma.com', 'notion.so', 'trello.com',
+                'asana.com', 'monday.com', 'clickup.com', 'jira.com', 'atlassian.com', 'adobe.com',
+                'speedtest.net', 'whois.com', 'godaddy.com', 'namecheap.com'
             ]
             
-            # Simple domain extraction for whitelist check without tldextract
+            # Simple domain extraction
             try:
                 parsed_url = urlparse(url)
                 url_domain = parsed_url.netloc.lower()
-                if url_domain.startswith('www.'):
-                    url_domain = url_domain[4:]
+                # Handle www. and other common prefixes rigidly for checking
+                clean_domain = url_domain
+                if clean_domain.startswith('www.'):
+                    clean_domain = clean_domain[4:]
             except:
                 url_domain = url
-            
+                clean_domain = url
+
+            # 1. Whitelist Check
             for legit_domain in known_legitimate:
-                if url_domain == legit_domain or url_domain.endswith('.' + legit_domain):
+                # Exact match or subdomain match (e.g., mail.google.com ends with .google.com)
+                if clean_domain == legit_domain or clean_domain.endswith('.' + legit_domain):
                     prediction = 0
-                    confidence = 98.0
-                    phishing_prob = 2.0
+                    confidence = 99.5
+                    phishing_prob = 0.5
                     features['_whitelist_override'] = True
+                    features['domain_trust'] = "Whitelisted Legacy Domain"
                     break
             
+            # 2. Heuristic Check (if not already whitelisted)
+            if prediction == 1:
+                # Trust Government and Education TLDs (including international)
+                trusted_suffixes = (
+                    '.gov', '.edu', '.mil', 
+                    '.ac.in', '.gov.in', '.edu.in', '.res.in',
+                    '.ac.uk', '.gov.uk', '.mod.uk',
+                    '.gov.au', '.edu.au',
+                    '.gc.ca', '.edu.sg', '.gov.sg'
+                )
+                
+                if clean_domain.endswith(trusted_suffixes):
+                    prediction = 0
+                    confidence = 96.0
+                    phishing_prob = 4.0
+                    features['_whitelist_override'] = True
+                    features['domain_trust'] = "Trusted Institution (Gov/Edu)"
+
             return prediction, confidence, phishing_prob, features
             
         except Exception as e:
@@ -548,7 +656,7 @@ def predict():
                     'confidence': f"{confidence:.2f}%" if confidence else 'N/A',
                     'confidence_value': confidence if confidence else 0,
                     'phishing_probability': f"{phishing_prob:.2f}%" if phishing_prob is not None else 'N/A',
-                    'threshold_used': 0.5,
+                    'threshold_used': detector.threshold,
                     'model_name': detector.model_name,
                     'features': features,
                     'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
@@ -597,6 +705,7 @@ def api_predict():
         'prediction': 'phishing' if prediction == 1 else 'legitimate',
         'confidence': confidence_value,
         'phishing_probability': phishing_prob,
+        'threshold_used': detector.threshold,
         'timestamp': datetime.now().isoformat()
     })
 
