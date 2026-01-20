@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PhishGuard AI - Sign Up</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -129,7 +131,7 @@
             opacity: 0;
             transform: translateY(40px);
             transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
-                        transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+                transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .fade-in.visible {
@@ -137,9 +139,17 @@
             transform: translateY(0);
         }
 
-        .fade-in-delay-1 { transition-delay: 0.1s; }
-        .fade-in-delay-2 { transition-delay: 0.2s; }
-        .fade-in-delay-3 { transition-delay: 0.3s; }
+        .fade-in-delay-1 {
+            transition-delay: 0.1s;
+        }
+
+        .fade-in-delay-2 {
+            transition-delay: 0.2s;
+        }
+
+        .fade-in-delay-3 {
+            transition-delay: 0.3s;
+        }
 
         .hero-left h1 {
             font-size: 72px;
@@ -157,14 +167,12 @@
         }
 
         .hero-left h1 strong:hover {
-            background: linear-gradient(
-                135deg,
-                #F5A623 0%,
-                #E3F542 25%,
-                #4A90E2 50%,
-                #E57373 75%,
-                #7ED321 100%
-            );
+            background: linear-gradient(135deg,
+                    #F5A623 0%,
+                    #E3F542 25%,
+                    #4A90E2 50%,
+                    #E57373 75%,
+                    #7ED321 100%);
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -337,9 +345,12 @@
         }
 
         @keyframes bounce {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateX(-50%) translateY(0);
             }
+
             50% {
                 transform: translateX(-50%) translateY(10px);
             }
@@ -374,14 +385,12 @@
         }
 
         .section-title .word:hover {
-            background: linear-gradient(
-                135deg,
-                #F5A623 0%,
-                #E3F542 25%,
-                #4A90E2 50%,
-                #E57373 75%,
-                #7ED321 100%
-            );
+            background: linear-gradient(135deg,
+                    #F5A623 0%,
+                    #E3F542 25%,
+                    #4A90E2 50%,
+                    #E57373 75%,
+                    #7ED321 100%);
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -523,6 +532,7 @@
                 opacity: 0;
                 transform: translateY(40px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -579,6 +589,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Navigation -->
     <nav id="nav">
@@ -604,7 +615,7 @@
                     <strong>Account</strong>
                 </h1>
                 <p class="fade-in fade-in-delay-1">
-                    Join the next generation of phishing detection. Start protecting 
+                    Join the next generation of phishing detection. Start protecting
                     your organization with AI-powered security and real-time threat intelligence.
                 </p>
                 <div class="hero-stats fade-in fade-in-delay-2">
@@ -633,52 +644,27 @@
                     <form method="POST" action="/signup">
                         <div class="form-group">
                             <label for="username">Username</label>
-                            <input 
-                                type="text" 
-                                id="username" 
-                                name="username" 
-                                placeholder="Choose a username" 
-                                pattern="[a-zA-Z0-9_]{3,}"
-                                required 
-                                autofocus
-                            >
+                            <input type="text" id="username" name="username" placeholder="Choose a username"
+                                pattern="[a-zA-Z0-9_]{3,}" required autofocus>
                             <div class="form-hint">Minimum 3 characters, letters, numbers and underscores only</div>
                         </div>
 
                         <div class="form-group">
                             <label for="email">Email Address</label>
-                            <input 
-                                type="email" 
-                                id="email" 
-                                name="email" 
-                                placeholder="your@email.com" 
-                                required
-                            >
+                            <input type="email" id="email" name="email" placeholder="your@email.com" required>
                         </div>
 
                         <div class="form-group">
                             <label for="password">Password</label>
-                            <input 
-                                type="password" 
-                                id="password" 
-                                name="password" 
-                                placeholder="Create a strong password" 
-                                minlength="6"
-                                required
-                            >
+                            <input type="password" id="password" name="password" placeholder="Create a strong password"
+                                minlength="6" required>
                             <div class="form-hint">Minimum 6 characters</div>
                         </div>
 
                         <div class="form-group">
                             <label for="confirm_password">Confirm Password</label>
-                            <input 
-                                type="password" 
-                                id="confirm_password" 
-                                name="confirm_password" 
-                                placeholder="Re-enter your password" 
-                                minlength="6"
-                                required
-                            >
+                            <input type="password" id="confirm_password" name="confirm_password"
+                                placeholder="Re-enter your password" minlength="6" required>
                         </div>
 
                         <button type="submit" class="btn-primary">
@@ -688,7 +674,7 @@
 
                     <div class="form-footer">
                         <p>
-                            Already have an account? 
+                            Already have an account?
                             <a href="/login">Sign in</a>
                         </p>
                     </div>
@@ -758,15 +744,15 @@
         const scene = new THREE.Scene();
         const container = document.getElementById('spiral-container');
         const camera = new THREE.PerspectiveCamera(
-            75, 
-            container.offsetWidth / container.offsetHeight, 
-            0.1, 
+            75,
+            container.offsetWidth / container.offsetHeight,
+            0.1,
             1000
         );
-        const renderer = new THREE.WebGLRenderer({ 
-            canvas: canvas, 
-            alpha: true, 
-            antialias: true 
+        const renderer = new THREE.WebGLRenderer({
+            canvas: canvas,
+            alpha: true,
+            antialias: true
         });
 
         renderer.setSize(container.offsetWidth, container.offsetHeight);
@@ -774,82 +760,122 @@
         camera.position.z = 200;
 
         const particles = [];
-        const particleCount = 800;
-        
-        // Pastel colors matching the login page
+        const particleCount = 1000;
+
+        // Sophisticated blue-purple tech palette (same as login page)
         const colors = [
-            new THREE.Color(0xA8C5E8), // Pastel Blue
-            new THREE.Color(0xC8B5E8), // Pastel Purple
-            new THREE.Color(0x9DD4F5), // Light Blue
-            new THREE.Color(0xD4B5E8), // Light Purple
-            new THREE.Color(0xB8D4F5), // Sky Blue
+            new THREE.Color(0x4A90E2), // Blue
+            new THREE.Color(0x5B7CED), // Periwinkle Blue
+            new THREE.Color(0x7B68EE), // Medium Slate Blue
+            new THREE.Color(0x9370DB), // Medium Purple
+            new THREE.Color(0x8B7EC8), // Soft Purple
+            new THREE.Color(0x6B8DD6), // Steel Blue
+            new THREE.Color(0x4F9FD9), // Sky Blue
         ];
 
+        // Create triangular particles
         class Particle {
             constructor(index) {
                 this.index = index;
-                
+
+                // Create triangle geometry
                 const geometry = new THREE.BufferGeometry();
-                const size = Math.random() * 15 + 8;
+                const size = Math.random() * 12 + 4;
                 const vertices = new Float32Array([
                     0, size * 0.866, 0,
                     -size * 0.5, -size * 0.433, 0,
                     size * 0.5, -size * 0.433, 0
                 ]);
                 geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-                
+
+                // Color selection
                 const color = colors[Math.floor(Math.random() * colors.length)];
-                const material = new THREE.MeshBasicMaterial({ 
+                const material = new THREE.MeshBasicMaterial({
                     color: color,
                     side: THREE.DoubleSide,
                     transparent: true,
-                    opacity: 0.6
+                    opacity: 0.7
                 });
-                
+
                 this.mesh = new THREE.Mesh(geometry, material);
-                
-                const phi = index * 0.15;
-                const theta = index * 0.08;
-                const radius = 50 + index * 0.6;
-                
+
+                // Spiral positioning (fibonacci-like distribution) - spread wider
+                const phi = index * 0.12;
+                const theta = index * 0.06;
+                const radius = 60 + index * 0.5;
+
                 this.baseX = radius * Math.sin(theta) * Math.cos(phi);
                 this.baseY = radius * Math.sin(theta) * Math.sin(phi);
-                this.baseZ = radius * Math.cos(theta) - 50;
-                
+                this.baseZ = radius * Math.cos(theta) - 50; // Offset Z for better depth
+
                 this.mesh.position.set(this.baseX, this.baseY, this.baseZ);
-                
+
+                // Random rotation speeds
                 this.rotationSpeed = {
-                    x: (Math.random() - 0.5) * 0.01,
-                    y: (Math.random() - 0.5) * 0.01,
-                    z: (Math.random() - 0.5) * 0.01
+                    x: (Math.random() - 0.5) * 0.015,
+                    y: (Math.random() - 0.5) * 0.015,
+                    z: (Math.random() - 0.5) * 0.015
                 };
-                
+
                 scene.add(this.mesh);
             }
-            
+
             update(time) {
-                const globalRotation = time * 0.00008;
-                
+                // Gentle rotation of the entire sphere
+                const globalRotation = time * 0.0001;
+
                 const x = this.baseX;
                 const y = this.baseY;
                 const z = this.baseZ;
-                
+
+                // Rotate around Y axis
                 this.mesh.position.x = x * Math.cos(globalRotation) - z * Math.sin(globalRotation);
                 this.mesh.position.y = y;
                 this.mesh.position.z = x * Math.sin(globalRotation) + z * Math.cos(globalRotation);
-                
+
+                // Individual particle rotation
                 this.mesh.rotation.x += this.rotationSpeed.x;
                 this.mesh.rotation.y += this.rotationSpeed.y;
                 this.mesh.rotation.z += this.rotationSpeed.z;
-                
-                this.mesh.position.y += Math.sin(time * 0.0006 + this.index * 0.1) * 0.1;
+
+                // Gentle floating effect
+                this.mesh.position.y += Math.sin(time * 0.0008 + this.index * 0.1) * 0.08;
             }
         }
 
+        // Create particles
         for (let i = 0; i < particleCount; i++) {
             particles.push(new Particle(i));
         }
 
+        // Create connecting lines (subtle)
+        const linesMaterial = new THREE.LineBasicMaterial({
+            color: 0xdddddd,
+            transparent: true,
+            opacity: 0.12
+        });
+        const linesGeometry = new THREE.BufferGeometry();
+        const linePositions = [];
+
+        // Create line connections between nearby particles
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < Math.min(i + 4, particles.length); j++) {
+                linePositions.push(
+                    particles[i].mesh.position.x,
+                    particles[i].mesh.position.y,
+                    particles[i].mesh.position.z,
+                    particles[j].mesh.position.x,
+                    particles[j].mesh.position.y,
+                    particles[j].mesh.position.z
+                );
+            }
+        }
+
+        linesGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+        const lines = new THREE.LineSegments(linesGeometry, linesMaterial);
+        scene.add(lines);
+
+        // Mouse interaction
         let mouseX = 0;
         let mouseY = 0;
         let targetRotationX = 0;
@@ -858,21 +884,39 @@
         document.addEventListener('mousemove', (event) => {
             mouseX = (event.clientX / window.innerWidth) * 2 - 1;
             mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
-            
-            targetRotationY = mouseX * 0.15;
-            targetRotationX = mouseY * 0.15;
+
+            targetRotationY = mouseX * 0.2;
+            targetRotationX = mouseY * 0.2;
         });
 
+        // Animation loop
         let time = 0;
         function animateSpiral() {
             requestAnimationFrame(animateSpiral);
             time++;
-            
+
+            // Update particles
             particles.forEach(particle => particle.update(time));
-            
+
+            // Update line positions
+            const positions = lines.geometry.attributes.position.array;
+            let index = 0;
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < Math.min(i + 4, particles.length); j++) {
+                    positions[index++] = particles[i].mesh.position.x;
+                    positions[index++] = particles[i].mesh.position.y;
+                    positions[index++] = particles[i].mesh.position.z;
+                    positions[index++] = particles[j].mesh.position.x;
+                    positions[index++] = particles[j].mesh.position.y;
+                    positions[index++] = particles[j].mesh.position.z;
+                }
+            }
+            lines.geometry.attributes.position.needsUpdate = true;
+
+            // Smooth camera rotation based on mouse
             scene.rotation.y += (targetRotationY - scene.rotation.y) * 0.05;
             scene.rotation.x += (targetRotationX - scene.rotation.x) * 0.05;
-            
+
             renderer.render(scene, camera);
         }
 
@@ -884,6 +928,7 @@
             camera.updateProjectionMatrix();
             renderer.setSize(container.offsetWidth, container.offsetHeight);
         });
+
 
         // Navbar scroll effect
         window.addEventListener('scroll', () => {
@@ -929,4 +974,5 @@
         });
     </script>
 </body>
+
 </html>
