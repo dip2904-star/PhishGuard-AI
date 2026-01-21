@@ -17,20 +17,24 @@
         width: 200%;
         height: 200%;
         background: radial-gradient(circle at 20% 30%, rgba(74, 144, 226, 0.08) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 70%, rgba(147, 112, 219, 0.08) 0%, transparent 50%),
-                    radial-gradient(circle at 40% 80%, rgba(123, 104, 238, 0.06) 0%, transparent 50%);
+            radial-gradient(circle at 80% 70%, rgba(147, 112, 219, 0.08) 0%, transparent 50%),
+            radial-gradient(circle at 40% 80%, rgba(123, 104, 238, 0.06) 0%, transparent 50%);
         animation: gradientShift 20s ease infinite;
         pointer-events: none;
         z-index: 0;
     }
 
     @keyframes gradientShift {
-        0%, 100% {
+
+        0%,
+        100% {
             transform: translate(0, 0) rotate(0deg);
         }
+
         33% {
             transform: translate(5%, -5%) rotate(120deg);
         }
+
         66% {
             transform: translate(-5%, 5%) rotate(240deg);
         }
@@ -93,18 +97,23 @@
     }
 
     @keyframes floatParticle {
-        0%, 100% {
+
+        0%,
+        100% {
             transform: translate(0, 0) scale(1);
             opacity: 0.4;
         }
+
         25% {
             transform: translate(50px, -100px) scale(1.5);
             opacity: 0.6;
         }
+
         50% {
             transform: translate(-30px, -200px) scale(1);
             opacity: 0.3;
         }
+
         75% {
             transform: translate(80px, -150px) scale(1.3);
             opacity: 0.5;
@@ -150,10 +159,13 @@
     }
 
     @keyframes pulseGlow {
-        0%, 100% {
+
+        0%,
+        100% {
             transform: scale(1);
             opacity: 0.15;
         }
+
         50% {
             transform: scale(1.2);
             opacity: 0.25;
@@ -189,12 +201,16 @@
     }
 
     @keyframes floatRotate {
-        0%, 100% {
+
+        0%,
+        100% {
             transform: translateY(0px) rotate(0deg) scale(1);
         }
+
         33% {
             transform: translateY(-35px) rotate(120deg) scale(1.1);
         }
+
         66% {
             transform: translateY(-18px) rotate(240deg) scale(0.95);
         }
@@ -240,6 +256,7 @@
             opacity: 0;
             transform: translateY(20px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -251,6 +268,7 @@
             width: 0;
             opacity: 0;
         }
+
         to {
             width: 100px;
             opacity: 1;
@@ -281,6 +299,7 @@
             opacity: 0;
             transform: translateY(30px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -437,10 +456,21 @@
         transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .metric-card:nth-child(1) { animation-delay: 0.7s; }
-    .metric-card:nth-child(2) { animation-delay: 0.75s; }
-    .metric-card:nth-child(3) { animation-delay: 0.8s; }
-    .metric-card:nth-child(4) { animation-delay: 0.85s; }
+    .metric-card:nth-child(1) {
+        animation-delay: 0.7s;
+    }
+
+    .metric-card:nth-child(2) {
+        animation-delay: 0.75s;
+    }
+
+    .metric-card:nth-child(3) {
+        animation-delay: 0.8s;
+    }
+
+    .metric-card:nth-child(4) {
+        animation-delay: 0.85s;
+    }
 
     .metric-card::before {
         content: '';
@@ -586,19 +616,23 @@
 
     /* Original brand colors for tech icons */
     .tech-item:nth-child(1) .tech-icon {
-        color: #3776AB; /* Python blue */
+        color: #3776AB;
+        /* Python blue */
     }
 
     .tech-item:nth-child(2) .tech-icon {
-        color: #F7931E; /* Scikit-learn orange */
+        color: #F7931E;
+        /* Scikit-learn orange */
     }
 
     .tech-item:nth-child(3) .tech-icon {
-        color: #150458; /* Pandas purple */
+        color: #150458;
+        /* Pandas purple */
     }
 
     .tech-item:nth-child(4) .tech-icon {
-        color: #7952B3; /* Bootstrap purple */
+        color: #7952B3;
+        /* Bootstrap purple */
     }
 
     .tech-item:hover .tech-icon {
@@ -653,9 +687,12 @@
     }
 
     @keyframes gradientSlide {
-        0%, 100% {
+
+        0%,
+        100% {
             background-position: 0% 50%;
         }
+
         50% {
             background-position: 100% 50%;
         }
@@ -687,6 +724,7 @@
 
     /* Responsive */
     @media (max-width: 1024px) {
+
         .process-grid,
         .performance-grid,
         .tech-grid {
@@ -748,13 +786,13 @@
         <div class="about-content">
             <h2>Project Overview</h2>
             <p>
-                PhishGuard AI is an advanced phishing detection system powered by machine 
-                learning algorithms. Our platform analyzes over 32 distinct URL characteristics 
+                PhishGuard AI is an advanced phishing detection system powered by machine
+                learning algorithms. Our platform analyzes over 32 distinct URL characteristics
                 in real-time, providing instant threat assessments with enterprise-grade accuracy.
             </p>
             <p>
-                Built for security professionals and organizations seeking proactive threat 
-                protection, PhishGuard AI leverages Random Forest classification to identify 
+                Built for security professionals and organizations seeking proactive threat
+                protection, PhishGuard AI leverages Random Forest classification to identify
                 malicious patterns with industry-leading precision.
             </p>
         </div>
@@ -768,7 +806,7 @@
                 <div class="process-number">01</div>
                 <h3>Feature Extraction</h3>
                 <p>
-                    Deep analysis of URL structure, domain patterns, and content characteristics 
+                    Deep analysis of URL structure, domain patterns, and content characteristics
                     to extract 32+ unique features for classification.
                 </p>
             </div>
@@ -776,7 +814,7 @@
                 <div class="process-number">02</div>
                 <h3>ML Classification</h3>
                 <p>
-                    Random Forest algorithm processes extracted features with precision, 
+                    Random Forest algorithm processes extracted features with precision,
                     leveraging ensemble learning for robust threat detection.
                 </p>
             </div>
@@ -784,7 +822,7 @@
                 <div class="process-number">03</div>
                 <h3>Real-time Results</h3>
                 <p>
-                    Instant verdict delivery with detailed confidence scoring and threat 
+                    Instant verdict delivery with detailed confidence scoring and threat
                     intelligence for immediate security decisions.
                 </p>
             </div>
@@ -815,6 +853,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
     {% endif %}
 
     <!-- Technology Stack -->
@@ -860,8 +899,8 @@
         <div class="note-content">
             <h3>Academic Research Project</h3>
             <p>
-                This project demonstrates practical applications of machine learning in 
-                cybersecurity and threat detection, developed as part of advanced computer 
+                This project demonstrates practical applications of machine learning in
+                cybersecurity and threat detection, developed as part of advanced computer
                 science research.
             </p>
         </div>
