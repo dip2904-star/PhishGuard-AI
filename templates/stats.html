@@ -37,16 +37,12 @@
     }
 
     @keyframes floatRotate {
-
-        0%,
-        100% {
+        0%, 100% {
             transform: translateY(0px) rotate(0deg) scale(1);
         }
-
         33% {
             transform: translateY(-35px) rotate(120deg) scale(1.1);
         }
-
         66% {
             transform: translateY(-15px) rotate(240deg) scale(0.95);
         }
@@ -92,7 +88,6 @@
             opacity: 0;
             transform: translateY(20px);
         }
-
         to {
             opacity: 1;
             transform: translateY(0);
@@ -104,7 +99,6 @@
             width: 0;
             opacity: 0;
         }
-
         to {
             width: 100px;
             opacity: 1;
@@ -140,28 +134,16 @@
         animation: cardSlideUp 0.8s ease backwards;
     }
 
-    .stat-card:nth-child(1) {
-        animation-delay: 0.1s;
-    }
-
-    .stat-card:nth-child(2) {
-        animation-delay: 0.2s;
-    }
-
-    .stat-card:nth-child(3) {
-        animation-delay: 0.3s;
-    }
-
-    .stat-card:nth-child(4) {
-        animation-delay: 0.4s;
-    }
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
 
     @keyframes cardSlideUp {
         from {
             opacity: 0;
             transform: translateY(40px);
         }
-
         to {
             opacity: 1;
             transform: translateY(0);
@@ -180,21 +162,10 @@
         transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .stat-card:nth-child(1)::before {
-        color: #4A90E2;
-    }
-
-    .stat-card:nth-child(2)::before {
-        color: #F5A623;
-    }
-
-    .stat-card:nth-child(3)::before {
-        color: #E57373;
-    }
-
-    .stat-card:nth-child(4)::before {
-        color: #7ED321;
-    }
+    .stat-card:nth-child(1)::before { color: #4A90E2; }
+    .stat-card:nth-child(2)::before { color: #F5A623; }
+    .stat-card:nth-child(3)::before { color: #E57373; }
+    .stat-card:nth-child(4)::before { color: #7ED321; }
 
     .stat-card:hover::before {
         transform: scaleX(1);
@@ -319,7 +290,6 @@
             opacity: 0;
             transform: translateY(40px);
         }
-
         to {
             opacity: 1;
             transform: translateY(0);
@@ -551,7 +521,7 @@
         <p>Comprehensive metrics and visualizations from Random Forest classifier</p>
     </div>
 
-    <!-- Model Performance Stats - HIDDEN AS REQUESTED
+    <!-- Model Performance Stats - Commented Out
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-label">Accuracy</div>
@@ -676,9 +646,9 @@
     const chartDefaults = {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false
+        plugins: { 
+            legend: { 
+                display: false 
             }
         },
         scales: {
@@ -700,81 +670,81 @@
     // Confusion Matrix as Heatmap
     const confusionData = {
         tp: {{ stats.confusion_matrix.true_positives }},
-    tn: { { stats.confusion_matrix.true_negatives } },
-    fp: { { stats.confusion_matrix.false_positives } },
-    fn: { { stats.confusion_matrix.false_negatives } }
+        tn: {{ stats.confusion_matrix.true_negatives }},
+        fp: {{ stats.confusion_matrix.false_positives }},
+        fn: {{ stats.confusion_matrix.false_negatives }}
     };
 
     // Draw confusion matrix heatmap
     function drawConfusionMatrix() {
         const confusionCanvas = document.getElementById('confusionChart');
         if (!confusionCanvas) return;
-
+        
         const ctx = confusionCanvas.getContext('2d');
         const parent = confusionCanvas.parentElement;
-
+        
         // Set canvas size to match container
         confusionCanvas.width = parent.offsetWidth;
         confusionCanvas.height = parent.offsetHeight;
-
+        
         const width = confusionCanvas.width;
         const height = confusionCanvas.height;
-
+        
         // Larger cells - use more of the available space
         const cellSize = Math.min(width / 2.5, height / 2.5);
         const startX = (width - cellSize * 2) / 2;
         const startY = (height - cellSize * 2) / 2 + 10;
-
+        
         // Matrix data
         const matrix = [
             [confusionData.tn, confusionData.fp],
             [confusionData.fn, confusionData.tp]
         ];
-
+        
         // Find min and max for color scaling
         const allValues = matrix.flat();
         const maxValue = Math.max(...allValues);
         const minValue = Math.min(...allValues);
-
+        
         // Function to get color based on value (light to dark blue gradient)
         function getColor(value) {
             const ratio = (value - minValue) / (maxValue - minValue);
             // Light blue to dark blue gradient
             const lightBlue = { r: 214, g: 234, b: 248 }; // #D6EAF8
             const darkBlue = { r: 21, g: 67, b: 96 };     // #154360
-
+            
             const r = Math.round(lightBlue.r + (darkBlue.r - lightBlue.r) * ratio);
             const g = Math.round(lightBlue.g + (darkBlue.g - lightBlue.g) * ratio);
             const b = Math.round(lightBlue.b + (darkBlue.b - lightBlue.b) * ratio);
-
+            
             return `rgb(${r}, ${g}, ${b})`;
         }
-
+        
         // Function to determine text color based on background
         function getTextColor(value) {
             const ratio = (value - minValue) / (maxValue - minValue);
             return ratio > 0.5 ? '#ffffff' : '#1a1a1a';
         }
-
+        
         // Clear canvas
         ctx.clearRect(0, 0, width, height);
-
+        
         // Draw cells
         for (let i = 0; i < 2; i++) {
             for (let j = 0; j < 2; j++) {
                 const x = startX + j * cellSize;
                 const y = startY + i * cellSize;
                 const value = matrix[i][j];
-
+                
                 // Draw cell background with gradient color
                 ctx.fillStyle = getColor(value);
                 ctx.fillRect(x, y, cellSize, cellSize);
-
+                
                 // Draw cell border
                 ctx.strokeStyle = '#ffffff';
                 ctx.lineWidth = 3;
                 ctx.strokeRect(x, y, cellSize, cellSize);
-
+                
                 // Draw value with smaller, responsive font
                 ctx.fillStyle = getTextColor(value);
                 const fontSize = Math.min(cellSize / 4, 28);
@@ -784,23 +754,23 @@
                 ctx.fillText(value.toLocaleString(), x + cellSize / 2, y + cellSize / 2);
             }
         }
-
+        
         // Draw axis labels
         ctx.fillStyle = '#666666';
         const labelSize = Math.min(cellSize / 12, 12);
         ctx.font = `${labelSize}px Inter`;
         ctx.textAlign = 'center';
-
+        
         // Top labels (Predicted)
         ctx.fillText('Legitimate', startX + cellSize / 2, startY - 15);
         ctx.fillText('Phishing', startX + cellSize * 1.5, startY - 15);
-
+        
         // Top header
         const headerSize = Math.min(cellSize / 11, 13);
         ctx.font = `bold ${headerSize}px Inter`;
         ctx.fillStyle = '#1a1a1a';
         ctx.fillText('Predicted Label', startX + cellSize, startY - 35);
-
+        
         // Left labels (True Label)
         ctx.font = `${labelSize}px Inter`;
         ctx.fillStyle = '#666666';
@@ -809,13 +779,13 @@
         ctx.rotate(-Math.PI / 2);
         ctx.fillText('Legitimate', 0, 0);
         ctx.restore();
-
+        
         ctx.save();
         ctx.translate(startX - 30, startY + cellSize * 1.5);
         ctx.rotate(-Math.PI / 2);
         ctx.fillText('Phishing', 0, 0);
         ctx.restore();
-
+        
         // Left header
         ctx.save();
         ctx.translate(startX - 55, startY + cellSize);
@@ -824,13 +794,13 @@
         ctx.fillStyle = '#1a1a1a';
         ctx.fillText('True Label', 0, 0);
         ctx.restore();
-
+        
         // Draw color scale legend
         const legendWidth = cellSize * 1.2;
         const legendHeight = 12;
         const legendX = startX + cellSize * 2 - legendWidth;
         const legendY = startY + cellSize * 2 + 25;
-
+        
         // Draw gradient bar
         for (let i = 0; i < legendWidth; i++) {
             const ratio = i / legendWidth;
@@ -838,7 +808,7 @@
             ctx.fillStyle = getColor(value);
             ctx.fillRect(legendX + i, legendY, 1, legendHeight);
         }
-
+        
         // Legend labels
         ctx.fillStyle = '#666666';
         const legendLabelSize = Math.min(cellSize / 14, 10);
@@ -867,8 +837,8 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: {
+            plugins: { 
+                legend: { 
                     display: true,
                     position: 'bottom',
                     labels: {
@@ -881,7 +851,7 @@
                 },
                 tooltip: {
                     callbacks: {
-                        label: function (context) {
+                        label: function(context) {
                             return context.label + ': ' + context.parsed + '%';
                         }
                     }
@@ -933,8 +903,8 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: {
+            plugins: { 
+                legend: { 
                     display: true,
                     position: 'top',
                     align: 'end',
@@ -954,8 +924,8 @@
                 },
                 y: {
                     grid: { color: colors.border, drawBorder: false },
-                    ticks: {
-                        color: colors.textSecondary,
+                    ticks: { 
+                        color: colors.textSecondary, 
                         font: { size: 11, weight: 300 },
                         callback: v => v + '%'
                     }
